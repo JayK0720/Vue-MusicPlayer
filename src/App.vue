@@ -1,9 +1,26 @@
 <template>
   <div id="app">
-	<p>Hello World</p>
+	<Tab/>
+	<router-view></router-view>
   </div>
 </template>
 
-<style lang="scss">
+<script>
+	import Tab from '@/components/tab'
+	export default{
+		name:'app',
+		data() {
+			return {
+				
+			}
+		},
+		components:{Tab}
+	}
+</script>
 
+<style lang="scss">
+	#app{
+		height:100%;
+		background-color:#fafafa;
+	}
 </style>

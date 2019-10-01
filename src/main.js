@@ -5,7 +5,7 @@ import router from './router/index.js'
 import store from './store/index.js'
 Vue.config.productionTip = false
 import fastclick from 'fastclick'
-import '@/common/scss/reset.scss';
+import '@/common/scss/index.scss';
 // click delay 300ms
 fastclick.attach(document.body);
 new Vue({
