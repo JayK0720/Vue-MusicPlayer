@@ -1,11 +1,13 @@
 <template>
   <div id="app">
+	<Header/>
 	<Tab/>
 	<router-view></router-view>
   </div>
 </template>
 
 <script>
+	import Header from '@/components/v-header'
 	import Tab from '@/components/tab'
 	export default{
 		name:'app',
@@ -14,7 +16,7 @@
 				
 			}
 		},
-		components:{Tab}
+		components:{Tab,Header}
 	}
 </script>
 
