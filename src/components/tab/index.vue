@@ -21,13 +21,15 @@
 <style lang='scss' scoped>
 	.tab{
 		display:flex;
-		height:40px;
+		height:42px;
 		.tab-item{
 			line-height:40px;
 			flex:1;
 			text-align:center;
+			border-bottom:2px solid transparent;
 			&.active{
 				color:#31ce9c;
+				border-bottom-color:#31ce9c;
 			}
 		}
 	}

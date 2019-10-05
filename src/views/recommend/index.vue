@@ -1,19 +1,29 @@
 <template>
-	<p>
-		recommend
-	</p>
+	<div class='recommend-wrapper'>
+		<Slider v-if='recommends.length'>
+			<div 
+				v-for='(item,index) in recommends' :key='index'
+			>
+				<a v-bind:href='item.linkUrl'>
+					<img v-bind:src="item.picUrl" alt="">
+				</a>
+			</div>
+		</Slider>
+	</div>
 </template>
 
 <script>
 	import getRecommend from '@/common/api/recommend'
 	import {ERR_OK} from '@/common/api/config'
+	import Slider from '@/base/slider'
 	export default{
 		name:'recommend',
 		data(){
 			return{
-				recommend:[]
+				recommends:[]
 			}
 		},
+		components:{Slider},
 		created() {
 			this._getRecommend();
 		},
@@ -21,7 +31,7 @@
 			_getRecommend(){
 				getRecommend().then(res => {
 					if(res.code === ERR_OK){
-						this.recommend = res.data.slider;
+						this.recommends = res.data.slider;
 					}
 				})
 			}
@@ -29,5 +39,8 @@
 	}
 </script>
 
-<style>
+<style lang='scss' scoped>
+	.recommend-wrapper{
+		
+	}
 </style>
