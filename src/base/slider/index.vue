@@ -50,7 +50,9 @@
 			});
 			// window.resize
 			window.addEventListener('resize',() => {
+				if(!this.scroll) return;
 				this._setSliderWidth(true);
+				this.scroll.refresh();
 			},false); 
 		},
 		methods:{
@@ -88,21 +90,34 @@
 					let pageIndex = this.scroll.getCurrentPage().pageX;
 					this.currentIndex = pageIndex;
 					if(this.autoplay){
-						clearTimeout(this.timer);
 						this._autoPlay();
+					}
+				})
+				this.scroll.on('touchEnd',() => {
+					if(this.autoplay){
+						clearTimeout(this.timer);
+					}
+				})
+				this.scroll.on('beforeScrollStart',() => {
+					if(this.autoplay){
+						clearTimeout(this.timer);
 					}
 				})
 			},
 			_autoPlay(){
-				let pageIndex = this.currentIndex + 1;
-				if(pageIndex >= this.count) pageIndex = 0;
 				this.timer = setTimeout(() => {
-					this.scroll.goToPage(pageIndex,0,400);
+					this.scroll.next();
 				},this.interval);
 			},
 			_initDots(){
 				this.dots = new Array(this.children.length);
 			},
+		},
+		destroyed(){
+			if(this.scroll){
+				this.scroll.disable();
+				clearTimeout(this.timer);
+			}
 		}
 	}
 </script>

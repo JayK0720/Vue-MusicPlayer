@@ -1,9 +1,9 @@
 // 请求数据时通用的请求参数，
 export const commonParams = {
 	g_tk:5381,
-	format:'json',
-	inCharset:'utf8',
-	outCharset:'utf8',
+	format:'jsonp',
+	inCharset:'utf-8',
+	outCharset:'utf-8',
 	notice:0,
 }
 
