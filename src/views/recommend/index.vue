@@ -18,7 +18,7 @@
 					<ul>
 						<li v-for='(item,index) in list' :key='index' class='recommend-item'>
 							<div class="icon">
-								<img v-bind:src="item.imgurl" alt="">
+								<img v-lazy="item.imgurl" alt="">
 							</div>
 							<div class="text">
 								<h2 class="name" v-html='item.dissname'></h2>
@@ -29,6 +29,7 @@
 					</ul>
 				</div>
 			</section>
+			<Loading v-show='!list.length'/>
 		</Scroll>
 	</div>
 </template>
@@ -38,15 +39,16 @@
 	import {ERR_OK} from '@/common/api/config'
 	import Slider from '@/base/slider'
 	import Scroll from '@/base/scroll'
+	import Loading from '@/base/loading'
 	export default{
 		name:'recommend',
 		data(){
 			return{
 				recommends:[],
-				list:[]
+				list:[],
 			}
 		},
-		components:{Slider,Scroll},
+		components:{Slider,Scroll,Loading},
 		created() {
 			this._getRecommend();
 			this._getDiscList()
@@ -89,6 +91,11 @@
 		width:100%;
 		bottom:0;
 		top:78px;
+	}
+	.recommend-content{
+		width:100%;
+		height:100%;
+		position:relative;
 	}
 	.recommend-list{
 		padding:0 12px;
