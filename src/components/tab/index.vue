@@ -17,11 +17,12 @@
 	.tab{
 		display:flex;
 		height:42px;
+		background-color:#fafafa;
 		.tab-item{
 			line-height:40px;
 			flex:1;
 			text-align:center;
-			border-bottom:2px solid transparent;
+			border-bottom:2px solid #fafafa;
 			&.active{
 				color:#31ce9c;
 				border-bottom-color:#31ce9c;

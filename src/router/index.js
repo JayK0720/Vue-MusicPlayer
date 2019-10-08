@@ -12,7 +12,13 @@ export default new VueRouter({
 		},
 		{
 			path:'/singer',
-			component:() => import ('@/views/singer')
+			component:() => import ('@/views/singer'),
+			children:[
+				{
+					path:':singerId',
+					component:() => import('@/components/singer-detail')
+				}
+			]
 		},
 		{
 			path:'/rank',

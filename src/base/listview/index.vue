@@ -14,6 +14,7 @@
 						v-for='(item,index) in group.items' 
 						:key='index'
 						class='singer-item'
+						@click='handleSelectSinger(item)'
 					>
 						<img v-bind:src="item.avatar" v-bind:alt="item.name" width='60' height='60' class='avatar'>
 						<span class='name'>{{item.name}}</span>
@@ -32,12 +33,18 @@
 				>{{item}}</li>
 			</ul>
 		</div>
+		<div class="list-fixed" v-show='fixedTitle' ref='fixedTitle'>
+			<h2 class="fixed-title">{{fixedTitle}}</h2>
+		</div>
+		<Loading v-show='!data.length'/>
 	</Scroll>
 </template>
 
 <script>
 	const INDEX_HEIGHT = 20;
+	const TITLE_HEIGHT = 42;
 	import Scroll from '@/base/scroll'
+	import Loading from '@/base/loading'
 	export default{
 		name:'listview',
 		data() {
@@ -45,10 +52,12 @@
 				listenScroll:true,
 				probeType:3,
 				currentIndex:0,
-				scrollHeight:[]
+				scrollHeight:[],
+				scrollY:-1,
+				diffY:0
 			}
 		},
-		components:{Scroll},
+		components:{Scroll,Loading},
 		props:{
 			data:{
 				type:Array,
@@ -62,16 +71,30 @@
 				return this.data.map((item) => {
 					return item.title.substring(0,1);
 				}) 
+			},
+			fixedTitle(){
+				if(this.scrollY > 0){
+					return '';
+				}
+				if(this.scrollY < 0){
+					return this.data.length ? this.data[this.currentIndex].title : '';
+				}
 			}
 		},
 		created(){
-			this.touch = {}
+			this.touch = {},
+			this.listHeight = []
 		},
 		watch:{
 			data(){
 				this.$nextTick(() => {
 					this._calcHeight();
 				})
+			},
+			diffY(value){
+				let fixedTop = (value > 0 && value < TITLE_HEIGHT) ? TITLE_HEIGHT - value : 0;
+				if(this.fixedTop === value) return;
+				this.$refs.fixedTitle.style.transform = `translate3d(0,${-fixedTop}px,0)`;
 			}
 		},
 		methods:{
@@ -89,46 +112,50 @@
 				this._scrollToIndex(index);
 			},
 			handleScroll({y}){
+				this.scrollY = y;	// 当前滚动的高度
 				if(y >= 0) {
 					this.currentIndex = 0; 
 					return;
 				}
-				this.scrollY = -y;	// 当前滚动的高度
-				const listHeight = this.scrollHeight;
+				const listHeight = this.listHeight;
 				for(let i = 0; i < listHeight.length - 1; i++){
 					let y1 = listHeight[i], y2 = listHeight[i+1];
 					if( (-y >= y1) && (-y < y2) ){
 						this.currentIndex = i;
+						this.diffY = y2 + y;
 						return;
 					}
 				}
-				if(-y > listHeight[i]){
-					this.currentHeight = listHeight - 2;
+				if(-y > listHeight[listHeight.length-1]){
+					this.currentHeight = listHeight.length - 1;
 					return;
 				}
+			},
+			handleSelectSinger(props){
+				this.$emit('select',props);
 			},
 			_scrollToIndex(index){
 				const groupListItem = this.$refs.groupListItem[index];
 				this.$refs.scroll.scrollToElement(groupListItem,0);
 			},
 			_calcHeight(){
-				let height = 0,scrollHeight = [],list = this.$refs.groupListItem;
-				scrollHeight.push(height);
+				let height = 0,listHeight = [],list = this.$refs.groupListItem;
+				listHeight.push(height);
 				for(let i = 0,len = list.length; i < len; i++){
 					height += list[i].clientHeight;
-					scrollHeight.push(height);
+					listHeight.push(height);
 				}
-				this.scrollHeight = scrollHeight;
+				this.listHeight = listHeight;
 			}
 		}
 	}
 </script>
 
 <style lang='scss' scoped>
-	.group-title{
+	.group-title,.fixed-title{
 		padding-left:16px;
-		height:43px;
-		line-height:43px;
+		height:42px;
+		line-height:42px;
 		background-color:#f9f9f9;
 		color:#898989;
 		font-size:12px;
@@ -174,5 +201,12 @@
 				color:#22d59c;
 			}
 		}
+	}
+	.list-fixed{
+		position:absolute;
+		left:0;
+		top:0;
+		width:100%;
+		height:43px;
 	}
 </style>

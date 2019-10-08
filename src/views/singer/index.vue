@@ -1,6 +1,7 @@
 <template>
 	<div class="singer-wrapper">
-		<ListView :data='singers'></ListView>
+		<ListView :data='singers' @select='handleSelectSinger'></ListView>
+		<router-view></router-view>
 	</div>
 </template>
 
@@ -8,6 +9,7 @@
 	import {getSinger} from '@/common/api/singer'
 	import {ERR_OK} from '@/common/api/config'
 	import ListView from '@/base/listview'
+	import {mapMutations} from 'vuex'
 	
 	const HOT_NAME = '热门歌手',
 		  HOT_NAME_LENGTH = 10;
@@ -24,6 +26,13 @@
 		},
 		components:{ListView},
 		methods:{
+			...mapMutations({
+				'setSinger':'SET_SINGER'
+			}),
+			handleSelectSinger(singer){
+				this.$router.push(`/singer/${singer.id}`)
+				this.setSinger(singer);
+			},
 			_getSinger(){
 				getSinger().then(res => {
 					if(res.code === ERR_OK){
@@ -77,6 +86,7 @@
 					   map.hot.items.push({
 						   name:item.Fsinger_name,
 						   id:item.Fsinger_id,
+						   singerMid:item.Fsinger_mid,
 						   avatar:`https://y.gtimg.cn/music/photo_new/T001R150x150M000${item.Fsinger_mid}.jpg?max_age=2592000`
 					   });
 				   }
@@ -90,6 +100,7 @@
 				   map[key].items.push({
 					   name:item.Fsinger_name,
 					   id:item.Fsinger_id,
+					   singerMid:item.Fsinger_mid,
 					   avatar:`https://y.gtimg.cn/music/photo_new/T001R150x150M000${item.Fsinger_mid}.jpg?max_age=2592000`,
 				   })
 			   })
