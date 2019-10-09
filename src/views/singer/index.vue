@@ -87,7 +87,7 @@
 						   name:item.Fsinger_name,
 						   id:item.Fsinger_id,
 						   singerMid:item.Fsinger_mid,
-						   avatar:`https://y.gtimg.cn/music/photo_new/T001R150x150M000${item.Fsinger_mid}.jpg?max_age=2592000`
+						   avatar:`http://y.gtimg.cn/music/photo_new/T001R150x150M000${item.Fsinger_mid}.webp`
 					   });
 				   }
 				   const key = item.Findex;
