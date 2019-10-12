@@ -13,3 +13,29 @@ export function addClass(ele,className){
 		ele.className = classArr.join(' ');
 	}
 }
+
+const elementStyle = document.createElement('div').style;
+
+let vendor = (function (){
+	const transformNames = {
+		webkit:'webkitTransform',
+		ms:'msTransform',
+		o:'oTransform',
+		moz:'mozTransform',
+		standard:'transform'
+	}
+	for(let key in transformNames){
+		if(elementStyle[ transformNames[key] ] !== undefined){
+			return key
+		}
+	}
+	return false
+})()
+
+export function prefixStyle(attr){
+	if(vendor === false) return;
+	if(vendor === 'standard'){
+		return attr;
+	}
+	return vendor + attr.charAt(0).toUpperCase() + attr.substring(1);
+}

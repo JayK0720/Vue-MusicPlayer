@@ -1,8 +1,6 @@
 <template>
 	<transition name='slider' appear>
-		<div class="singer-detail">
-			<MusicList :title='title' :bg-image='bgImage' :songs='songsList'/>
-		</div>
+		<MusicList :title='title' :bg-image='bgImage' :songs='songsList'/>
 	</transition>
 </template>
 
@@ -12,6 +10,7 @@
 	import {ERR_OK} from '@/common/api/config'
 	import {createSong} from '@/common/js/song'
 	import MusicList from '@/components/music-list'
+	
 	export default{
 		name:'singer-detail',
 		data() {
@@ -30,7 +29,6 @@
 			...mapGetters(['singer'])
 		},
 		created(){
-			console.log(this.singer);
 			const {singerMid} = this.singer;
 			this._getSongs(singerMid);
 		},
@@ -39,6 +37,7 @@
 				getSongs(singerMid).then(res => {
 					if(res.code === ERR_OK){
 						this.songsList = this._normalizeSong(res.data.list);
+						console.log(this.songsList);
 					}
 				})
 			},
@@ -56,15 +55,6 @@
 </script>
 
 <style lang='scss' scoped>
-	.singer-detail{
-		position:fixed;
-		left:0;
-		top:0;
-		right:0;
-		bottom:0;
-		background-color:#fafafa;
-		z-index:100;
-	}
 	.slider-enter-active,.slider-leave-active{
 		transition:all .4s;
 	}

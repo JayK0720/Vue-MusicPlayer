@@ -130,5 +130,6 @@
 		top:78px;
 		bottom:0;
 		width:100%;
+		overflow:hidden;
 	}
 </style>

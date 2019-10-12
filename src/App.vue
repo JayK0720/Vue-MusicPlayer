@@ -5,12 +5,14 @@
 	<keep-alive>
 		<router-view></router-view>
 	</keep-alive>
+	<Player/>
   </div>
 </template>
 
 <script>
 	import Header from '@/components/v-header'
 	import Tab from '@/components/tab'
+	import Player from '@/components/player'
 	export default{
 		name:'app',
 		data() {
@@ -18,7 +20,7 @@
 				
 			}
 		},
-		components:{Tab,Header}
+		components:{Tab,Header,Player}
 	}
 </script>
 
@@ -26,5 +28,6 @@
 	#app{
 		height:100%;
 		background-color:#fafafa;
+		overflow:hidden;
 	}
 </style>

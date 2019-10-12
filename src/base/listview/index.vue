@@ -2,9 +2,10 @@
 	<Scroll 
 		:data='data' 
 		ref='scroll'
-		:listenScroll='listenScroll'
-		:probeType='probeType'
+		:listen-scroll='listenScroll'
+		:probe-type='probeType'
 		@scroll='handleScroll'
+		class='scroll-wrapper'
 	>
 		<ul class='group-list'>
 			<li v-for='(group,index) in data' :key='index' ref='groupListItem'>
@@ -152,6 +153,10 @@
 </script>
 
 <style lang='scss' scoped>
+	.scroll-wrapper{
+		height:100%;
+		overflow:hidden;
+	}
 	.group-title,.fixed-title{
 		padding-left:16px;
 		height:42px;
