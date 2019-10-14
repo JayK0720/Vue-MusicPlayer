@@ -34,7 +34,7 @@
 	import Loading from '@/base/loading'
 	const TITLE_HEIGHT = 60;
 	import {prefixStyle} from '@/common/js/dom'
-	
+	import {mapActions} from 'vuex'
 	
 	export default{
 		name:'music-list',
@@ -70,6 +70,7 @@
 			this.maxTranslateY = -this.bgHeight + TITLE_HEIGHT;
 		},
 		methods:{
+			...mapActions(['selectPlay']),
 			handleBack(){
 				this.$router.back()
 			},
@@ -121,8 +122,12 @@
 				this.$refs.layer.style['webKittransform'] = `translate3d(0,${pos.y}px,0)` 
 				*/
 			},
+			/*
+			点击歌曲时，需要播放歌曲，展开播放歌曲页面，添加当前的播放列表，
+			*/
 			selectSong(item,index){
-				console.log(item,index);
+				console.log(item);
+				this.selectPlay({list:this.songs,index});
 			}
 		},
 	}

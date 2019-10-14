@@ -37,7 +37,6 @@
 				getSongs(singerMid).then(res => {
 					if(res.code === ERR_OK){
 						this.songsList = this._normalizeSong(res.data.list);
-						console.log(this.songsList);
 					}
 				})
 			},

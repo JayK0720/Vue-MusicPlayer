@@ -5,7 +5,7 @@ Vue.use(Vuex);
 import mutations from './mutations'
 import getters from './getters'
 import {playMode} from '@/common/js/config'
-
+import actions from './actions'
 
 export default new Vuex.Store({
 	state:{
@@ -18,5 +18,6 @@ export default new Vuex.Store({
 		currentIndex:-1,
 	},
 	mutations,
-	getters
+	getters,
+	actions
 })

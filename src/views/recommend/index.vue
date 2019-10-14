@@ -18,7 +18,7 @@
 					<ul>
 						<li v-for='(item,index) in list' :key='index' class='recommend-item'>
 							<div class="icon">
-								<img v-lazy="item.imgurl" alt="">
+								<img v-lazy="item.imgurl" :alt="item.dissname">
 							</div>
 							<div class="text">
 								<h2 class="name" v-html='item.dissname'></h2>
@@ -89,7 +89,7 @@
 	.recommend{
 		position:fixed;
 		width:100%;
-		bottom:0;
+		bottom:45px;
 		top:78px;
 	}
 	.recommend-content{

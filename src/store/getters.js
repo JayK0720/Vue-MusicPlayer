@@ -7,7 +7,11 @@ const getters = {
 	mode: (state) => state.mode,
 	currentIndex : (state) => state.currentIndex,
 	currentSong : (state) => {
-		return state.playList[state.currentList] || {}
+		return state.playList[state.currentIndex] || {  
+			image:require('@/common/imgs/loading.png'),
+			songname:'让生活充满音乐',
+			singer:''
+		}
 	}
 }
 

@@ -5,6 +5,7 @@
 	<keep-alive>
 		<router-view></router-view>
 	</keep-alive>
+	<MiniPlayer/>
 	<Player/>
   </div>
 </template>
@@ -13,6 +14,7 @@
 	import Header from '@/components/v-header'
 	import Tab from '@/components/tab'
 	import Player from '@/components/player'
+	import MiniPlayer from '@/components/mini-player'
 	export default{
 		name:'app',
 		data() {
@@ -20,7 +22,7 @@
 				
 			}
 		},
-		components:{Tab,Header,Player}
+		components:{Tab,Header,Player,MiniPlayer}
 	}
 </script>
 
