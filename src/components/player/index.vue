@@ -10,13 +10,22 @@
 						<i class="iconfont">&#xe721;</i>
 					</div>
 					<h1 class="song-name">{{currentSong.songname}}</h1>
-					<div class="singer-name">
-						<p class='text'>{{currentSong.singer}}</p>
+					<div class="menu">
+						<i class="iconfont">&#xe610;</i>
 					</div>
 				</div>
 				<div class="middle">
-					<div class="cd-wrapper">
-						<img v-lazy="currentSong.image" :alt="currentSong.songname" width='315' height='315'>
+					<div class="middle-left">
+						<div class="singer-name">
+							<p class='text'>{{currentSong.singer}}</p>
+						</div>
+						<div class="cd-wrapper">
+							<div class="cd">
+								<img v-lazy="currentSong.image" :alt="currentSong.songname">
+							</div>
+						</div>
+					</div>
+					<div class="middle-right">
 					</div>
 				</div>
 				<div class="bottom">
@@ -45,6 +54,7 @@
 				</div>
 			</div>
 		</transition>
+		<audio v-bind:src="currentSong.url" ref='audio'></audio>
 	</div>
 </template>
 
@@ -52,11 +62,6 @@
 	import {mapGetters,mapMutations} from 'vuex'
 	export default{
 		name:'player',
-		data() {
-			return {
-				
-			}
-		},
 		computed:{
 			...mapGetters(['fullScreen','playList','currentSong'])
 		},
@@ -66,6 +71,13 @@
 			}),
 			handleFold(){
 				this.foldFullScreen(false);
+			}
+		},
+		watch:{
+			currentSong(){
+				this.$nextTick(() => {
+					this.$refs.audio.play();
+				})
 			}
 		}
 	}
@@ -94,30 +106,36 @@
 		}
 		.top{
 			margin-top:30px;
-			position:relative;
-			height:78px;
+			display:flex;
+			padding:0 16px;
+			height:20px;
+			justify-content:space-between;
+			align-items:center;
 			.arrow-down{
-				left:10px;
-				position:absolute;
 				transform:rotateZ(-90deg);
-				width:30px;
-				height:28px;
-				z-index:210;
+			}
+			.arrow-down,.menu{
+				flex:0 0 20px;
 				.iconfont{
-					text-align:center;
-					font-size:28px;
+					font-size:20px;
 				}
 			}
-			.song-name,.singer-name{
+			.song-name{
 				text-align:center;
 			}
 			.song-name{
-				padding:0 50px;
-				height:28px;
-				line-height:28px;
-				font-size:16px;
+				flex:0 0 1;
+				height:20px;
+				line-height:20px;
+				font-size:18px;
 				@include text-ellipsis;
 			}
+		}
+		.middle{
+			position:fixed;
+			top:55px;
+			bottom:135px;
+			width:100%;
 			.singer-name{
 				display:flex;
 				padding:0 10px;
@@ -139,20 +157,33 @@
 				height:1px;
 				background-color:#ffffff;
 			}
-		}
-		.middle{
-			position:fixed;
-			top:122px;
-			bottom:135px;
-			width:100%;
-			.cd-wrapper,.cd-wrapper>img{
-				border-radius:50%;
+			.middle-left{
+				height:100%;
+				width:100%;
 			}
 			.cd-wrapper{
-				margin:0 auto;
-				width:315px;
-				height:315px;
-				border:7px solid rgba(0,0,0,0.2);
+				position:relative;
+				top:50%;
+				left:50%;
+				transform:translate(-50%,-50%);
+				width:86%;
+				height:0;
+				padding-top:86%;
+				border-radius:50%;
+				border:8px solid rgba(0,0,0,.3);
+				.cd{
+					position:absolute;
+					left:0;
+					top:0;
+					width:100%;
+					height:100%;
+					img{
+						display:block;
+						width:100%;
+						height:100%;
+						border-radius:50%;
+					}
+				}
 			}
 		}
 		.bottom{

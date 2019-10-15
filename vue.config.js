@@ -18,6 +18,22 @@ module.exports = {
 				.catch(err => {
 					console.log(err);
 				})
+			});
+			app.get('/api/getSongUrl',function(req,res){
+				const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+				axios.get(url,{
+					headers:{
+						referer:'https://u.y.qq.com/',
+						host:'u.y.qq.com',
+					},
+					params:req.query,
+				})
+				.then(response => {
+					res.json(response.data)
+				})
+				.catch(err => {
+					console.log(err);
+				})
 			})
 		}
 	}

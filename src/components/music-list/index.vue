@@ -126,7 +126,6 @@
 			点击歌曲时，需要播放歌曲，展开播放歌曲页面，添加当前的播放列表，
 			*/
 			selectSong(item,index){
-				console.log(item);
 				this.selectPlay({list:this.songs,index});
 			}
 		},

@@ -6,7 +6,7 @@
 
 <script>
 	import {mapGetters} from 'vuex'
-	import {getSongs} from '@/common/api/singer' 
+	import {getSongs,getSongUrl} from '@/common/api/singer' 
 	import {ERR_OK} from '@/common/api/config'
 	import {createSong} from '@/common/js/song'
 	import MusicList from '@/components/music-list'
@@ -33,6 +33,7 @@
 			this._getSongs(singerMid);
 		},
 		methods:{
+			// 获取当前当前歌手的歌曲列表
 			_getSongs(singerMid){
 				getSongs(singerMid).then(res => {
 					if(res.code === ERR_OK){
@@ -43,8 +44,17 @@
 			_normalizeSong(list){
 				let ret = [];
 				list.forEach(({musicData}) => {
-					if(musicData.songid && musicData.albummid){
-						ret.push( createSong(musicData) );
+					if(musicData.songid && musicData.albummid && musicData.songmid){
+						getSongUrl(musicData.songmid).then(res => {
+							if(res.code === ERR_OK){
+								let vkey = res.req.data.vkey;
+								let url = `http://aqqmusic.tc.qq.com/amobile.music.tc.qq.com/C400${musicData.songmid}.m4a?guid=4427256653&${vkey}&uin=8095&fromtag=38`
+								const data = Object.assign({},musicData,{
+									url
+								})
+								ret.push(createSong(data))
+							}
+						})
 					}
 				})
 				return ret;
