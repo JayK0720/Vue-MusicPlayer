@@ -7,6 +7,8 @@ Vue.config.productionTip = false
 import fastclick from 'fastclick'
 import VueLazyload from 'vue-lazyload'
 import '@/common/scss/index.scss';
+import Audio from '@/base/audio'
+Vue.component('Audio',Audio)
 // click delay 300ms
 fastclick.attach(document.body);
 Vue.use(VueLazyload,{

@@ -20,7 +20,7 @@
 							<p class='text'>{{currentSong.singer}}</p>
 						</div>
 						<div class="cd-wrapper">
-							<div class="cd">
+							<div class="cd" :class='cdClass'>
 								<img v-lazy="currentSong.image" :alt="currentSong.songname">
 							</div>
 						</div>
@@ -41,8 +41,13 @@
 						<div class="prev">
 							<i class="iconfont">&#xe602;</i>
 						</div>
-						<div class="play">
-							<i class="iconfont">&#xe652;</i>
+						<div class="play" @click='handleTogglePlaying'>
+							<template v-if='!playing'>
+								<i class="iconfont">&#xe652;</i>
+							</template>
+							<template v-else>
+								<i class="iconfont">&#xe603;</i>
+							</template>
 						</div>
 						<div class="next">
 							<i class="iconfont">&#xe619;</i>
@@ -54,6 +59,7 @@
 				</div>
 			</div>
 		</transition>
+		<!-- <Audio :url='currentSong.url' ref='audio'/> -->
 		<audio v-bind:src="currentSong.url" ref='audio'></audio>
 	</div>
 </template>
@@ -63,21 +69,33 @@
 	export default{
 		name:'player',
 		computed:{
-			...mapGetters(['fullScreen','playList','currentSong'])
+			...mapGetters(['fullScreen','playList','currentSong','playing']),
+			cdClass(){
+				return this.playing? 'play' : 'pause'
+			}
 		},
 		methods:{
 			...mapMutations({
 				foldFullScreen:'SET_FULL_SCREEN',
+				setPlayingState:'SET_PLAYING'
 			}),
 			handleFold(){
 				this.foldFullScreen(false);
+			},
+			handleTogglePlaying(){
+				// playing 是getters里获取到的playing 状态, 点击播放按钮切换播放状态
+				this.setPlayingState(!this.playing);
 			}
 		},
 		watch:{
 			currentSong(){
 				this.$nextTick(() => {
 					this.$refs.audio.play();
-				})
+				}) 
+			},
+			playing(state){
+				const audio = this.$refs.audio;
+				state ? audio.play() : audio.pause();
 			}
 		}
 	}
@@ -92,7 +110,7 @@
 		top:0;
 		right:0;
 		z-index:200;
-		background-color:#333;
+		background-color:#232323;
 		color:#ffffff;
 		.player-background{
 			position:absolute;
@@ -100,9 +118,9 @@
 			top:0;
 			width:100%;
 			height:100%;
-			opacity:0.5;
+			opacity:0.4;
 			z-index:-1;
-			filter:blur(20px);
+			filter:blur(25px);
 		}
 		.top{
 			margin-top:30px;
@@ -158,11 +176,12 @@
 				background-color:#ffffff;
 			}
 			.middle-left{
+				position:relative;
 				height:100%;
 				width:100%;
 			}
 			.cd-wrapper{
-				position:relative;
+				position:absolute;
 				top:50%;
 				left:50%;
 				transform:translate(-50%,-50%);
@@ -182,6 +201,14 @@
 						width:100%;
 						height:100%;
 						border-radius:50%;
+					}
+					&.play{
+						animation:rotate 20s linear infinite;
+						animation-play-state:run;
+					}
+					&.pause{
+						animation:rotate 20s linear infinite;
+						animation-play-state:paused;
 					}
 				}
 			}
@@ -235,5 +262,14 @@
 	}
 	.slide-enter,.slide-leave-to{
 		transform:translate3d(0,100%,0);
+	}
+	/*图片旋转动画*/
+	@keyframes rotate{
+		0%{
+			transform:rotateZ(0deg);
+		}
+		100%{
+			transform:rotateZ(360deg);
+		}
 	}
 </style>

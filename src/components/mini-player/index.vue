@@ -1,14 +1,23 @@
 <template>
-	<div class="mini-player" @touchstart.stop='handleOpenFullScreen'>
-		<div class="music-icon">
+	<div class="mini-player" @click.stop='handleOpenFullScreen'>
+		<div class="music-icon" :class="iconClass">
 			<img v-bind:src="currentSong.image" alt="" width='45' height='45'>
 		</div>
 		<div class="text" :class='{active:currentSong.singer}'>
 			<span class="songname">{{currentSong.songname}}</span> 
 			<span class="singer" v-show='currentSong.singer'>- {{currentSong.singer}}</span>
 		</div>
-		<div class="play-icon control" :class='{active:currentSong.singer}'>
-			<i class="iconfont">&#xe652;</i>
+		<div 
+			class="play-icon control" 
+			:class='{active:currentSong.singer}' 
+			@click.stop='handleTogglePlaying'
+		>
+			<template v-if='!playing'>
+				<i class="iconfont">&#xe652;</i>
+			</template>
+			<template v-else>
+				<i class="iconfont">&#xe603;</i>
+			</template>
 		</div>
 		<div class="list-icon control" :class='{active:currentSong.singer}'>
 			<i class="iconfont">&#xe677;</i>
@@ -21,14 +30,21 @@
 	export default{
 		name:'mini-player',
 		computed:{
-			...mapGetters(['currentSong'])
+			...mapGetters(['currentSong','playing']),
+			iconClass(){
+				return this.playing ? 'play' : 'pause'
+			}
 		},
 		methods:{
 			...mapMutations({
-				setFullScreen:'SET_FULL_SCREEN'
+				setFullScreen:'SET_FULL_SCREEN',
+				setPlayingState:"SET_PLAYING"
 			}),
 			handleOpenFullScreen(){
 				this.setFullScreen(true);
+			},
+			handleTogglePlaying(){
+				this.setPlayingState(!this.playing);
 			}
 		}
 	}
@@ -56,6 +72,14 @@
 			overflow:hidden;
 			img{
 				border-radius:50%;
+			}
+			&.play{
+				animation:rotate 20s linear infinite;
+				animation-play-state:run;
+			}
+			&.pause{
+				animation:rotate 20s linear infinite;
+				animation-play-state:paused;
 			}
 		}
 		.text{
