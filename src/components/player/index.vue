@@ -38,7 +38,7 @@
 						<div class="mode">
 							<i class="iconfont">&#xe612;</i>
 						</div>
-						<div class="prev">
+						<div class="prev" @click='handlePrev'>
 							<i class="iconfont">&#xe602;</i>
 						</div>
 						<div class="play" @click='handleTogglePlaying'>
@@ -49,7 +49,7 @@
 								<i class="iconfont">&#xe603;</i>
 							</template>
 						</div>
-						<div class="next">
+						<div class="next" @click='handleNext'>
 							<i class="iconfont">&#xe619;</i>
 						</div>
 						<div class="collect">
@@ -60,7 +60,12 @@
 			</div>
 		</transition>
 		<!-- <Audio :url='currentSong.url' ref='audio'/> -->
-		<audio v-bind:src="currentSong.url" ref='audio'></audio>
+		<audio 
+			v-bind:src="currentSong.url" 
+			ref='audio'
+			@canplay='ready'
+			@error='error'
+		></audio>
 	</div>
 </template>
 
@@ -68,8 +73,19 @@
 	import {mapGetters,mapMutations} from 'vuex'
 	export default{
 		name:'player',
+		data() {
+			return {
+				flag:false
+			}
+		},
 		computed:{
-			...mapGetters(['fullScreen','playList','currentSong','playing']),
+			...mapGetters([
+					'fullScreen',
+					'playList',
+					'currentSong',
+					'playing',
+					'currentIndex'
+				]),
 			cdClass(){
 				return this.playing? 'play' : 'pause'
 			}
@@ -77,14 +93,45 @@
 		methods:{
 			...mapMutations({
 				foldFullScreen:'SET_FULL_SCREEN',
-				setPlayingState:'SET_PLAYING'
+				setPlayingState:'SET_PLAYING',
+				setCurrentIndex:'SET_CURRENT_INDEX'
 			}),
 			handleFold(){
 				this.foldFullScreen(false);
 			},
 			handleTogglePlaying(){
+				if(!this.flag) return;
 				// playing 是getters里获取到的playing 状态, 点击播放按钮切换播放状态
 				this.setPlayingState(!this.playing);
+			},
+			handlePrev(){
+				// 点击播放上一首
+				if(!this.flag) return;
+				let index = this.currentIndex - 1;
+				if(index === -1){
+					index = this.playList.length - 1;
+				}
+				this.setCurrentIndex(index);
+				this.setPlayingState(true);
+				this.flag = false;
+			},
+			handleNext(){
+				if(!this.flag) return;
+				// 点击播放下一首,当index改变的时候,currentSong就会修改
+				let index = this.currentIndex + 1;
+				if(index === this.playList.length){
+					index = 0;
+				}
+				this.setCurrentIndex(index);
+				this.setPlayingState(true);
+				this.flag = false;
+			},
+			ready(){
+				this.flag = true;
+			},
+			error(){
+				console.log('报错了');
+				this.flag = true;
 			}
 		},
 		watch:{
@@ -94,8 +141,10 @@
 				}) 
 			},
 			playing(state){
-				const audio = this.$refs.audio;
-				state ? audio.play() : audio.pause();
+				this.$nextTick(() => {
+					const audio = this.$refs.audio;
+					state ? audio.play() : audio.pause();
+				})
 			}
 		}
 	}
@@ -225,12 +274,12 @@
 				.total,.current{
 					padding:0 10px;
 					color:#fff;
-					font-size:14px;
+					font-size:12px;
 				}
 				.progress-bar{
 					flex:1;
 					height:2px;
-					background-color:#87837d;
+					background-color:#ffffff;
 				}
 			}
 			.operator-wrap{
