@@ -30,9 +30,11 @@
 				</div>
 				<div class="bottom">
 					<div class="progress-wrap">
-						<span class="current">01:58</span>
-						<div class="progress-bar"></div>
-						<span class="total">04:04</span>
+						<span class="current time">{{format(currentTime)}}</span>
+						<div class="progress-bar">
+							<ProgressBar :percent='percent'/>
+						</div>
+						<span class="total time">{{format(currentSong.duration)}}</span>
 					</div>
 					<div class="operator-wrap">
 						<div class="mode">
@@ -65,19 +67,24 @@
 			ref='audio'
 			@canplay='ready'
 			@error='error'
+			@timeupdate='timeupdate'
 		></audio>
 	</div>
 </template>
 
 <script>
 	import {mapGetters,mapMutations} from 'vuex'
+	import ProgressBar from '@/base/progress-bar'
+	
 	export default{
 		name:'player',
 		data() {
 			return {
-				flag:false
+				flag:false,
+				currentTime:0
 			}
 		},
+		components:{ProgressBar},
 		computed:{
 			...mapGetters([
 					'fullScreen',
@@ -88,6 +95,9 @@
 				]),
 			cdClass(){
 				return this.playing? 'play' : 'pause'
+			},
+			percent(){
+				return this.currentTime / this.currentSong.duration;
 			}
 		},
 		methods:{
@@ -130,8 +140,19 @@
 				this.flag = true;
 			},
 			error(){
-				console.log('报错了');
 				this.flag = true;
+			},
+			timeupdate(e){
+				this.currentTime = e.target.currentTime;
+			},
+			format(interval){
+				let minute = Math.floor(interval / 60);
+				let second = this.padzero(interval % 60 | 0 );
+				return `${minute}:${second}`;
+			},
+			padzero(num){
+				let length = num.toString().length;
+				return ('00' + num).substring(length);
 			}
 		},
 		watch:{
@@ -268,18 +289,26 @@
 			width:100%;
 			.progress-wrap{
 				display:flex;
+				margin:0 auto;
 				height:45px;
+				width:90%;
 				line-height:45px;
 				align-items:center;
-				.total,.current{
-					padding:0 10px;
+				.time{
+					flex:0 0 36px;
+					width:36px;
 					color:#fff;
 					font-size:12px;
+				}
+				.current{
+					text-align:left;
+				}
+				.total{
+					text-align:right;
 				}
 				.progress-bar{
 					flex:1;
 					height:2px;
-					background-color:#ffffff;
 				}
 			}
 			.operator-wrap{
