@@ -32,7 +32,7 @@
 					<div class="progress-wrap">
 						<span class="current time">{{format(currentTime)}}</span>
 						<div class="progress-bar">
-							<ProgressBar :percent='percent'/>
+							<ProgressBar :percent='percent' @percentChange='handleSliderEnd'/>
 						</div>
 						<span class="total time">{{format(currentSong.duration)}}</span>
 					</div>
@@ -135,6 +135,12 @@
 				this.setCurrentIndex(index);
 				this.setPlayingState(true);
 				this.flag = false;
+			},
+			handleSliderEnd(percent){
+				this.$refs.audio.currentTime = percent * this.currentSong.duration;
+				if(!this.playing){
+					this.setPlayingState(true);
+				}
 			},
 			ready(){
 				this.flag = true;
