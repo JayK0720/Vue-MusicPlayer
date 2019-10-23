@@ -37,8 +37,10 @@
 						<span class="total time">{{format(currentSong.duration)}}</span>
 					</div>
 					<div class="operator-wrap">
-						<div class="mode">
-							<i class="iconfont">&#xe612;</i>
+						<div class="mode" @click.prevent='handleCheckPlayMode'>
+							<i class="iconfont" v-if='mode === 0'>&#xe674;</i>
+							<i class="iconfont" v-else-if='mode === 1'>&#xe718;</i>
+							<i class="iconfont" v-else='mode === 2'>&#xe612;</i>
 						</div>
 						<div class="prev" @click='handlePrev'>
 							<i class="iconfont">&#xe602;</i>
@@ -75,7 +77,7 @@
 <script>
 	import {mapGetters,mapMutations} from 'vuex'
 	import ProgressBar from '@/base/progress-bar'
-	
+	import {playMode} from '@/common/js/config'
 	export default{
 		name:'player',
 		data() {
@@ -91,7 +93,8 @@
 					'playList',
 					'currentSong',
 					'playing',
-					'currentIndex'
+					'currentIndex',
+					'mode'
 				]),
 			cdClass(){
 				return this.playing? 'play' : 'pause'
@@ -104,7 +107,8 @@
 			...mapMutations({
 				foldFullScreen:'SET_FULL_SCREEN',
 				setPlayingState:'SET_PLAYING',
-				setCurrentIndex:'SET_CURRENT_INDEX'
+				setCurrentIndex:'SET_CURRENT_INDEX',
+				setPlayMode:'SET_MODE'
 			}),
 			handleFold(){
 				this.foldFullScreen(false);
@@ -141,6 +145,9 @@
 				if(!this.playing){
 					this.setPlayingState(true);
 				}
+			},
+			handleCheckPlayMode(){
+				
 			},
 			ready(){
 				this.flag = true;

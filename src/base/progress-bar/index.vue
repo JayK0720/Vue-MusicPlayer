@@ -1,5 +1,5 @@
 <template>
-	<div class="progress-slider" ref='slider'>
+	<div class="progress-slider" ref='slider' @click='handleChangeProgress'>
 		<div class="progress" ref='progress'></div>
 		<div 
 			class="slider-bar" 
@@ -39,21 +39,30 @@
 			handleTouchMove(e){
 				if(!this.touch.initial) return;
 				const delta = e.touches[0].pageX - this.touch.startX;
-				/*offsetWidth的最大宽度不能超过一个定值*/
-				const offsetWidth = Math.min( this.$refs.slider.offsetWidth - barWidth , this.touch.progressWidth+delta );
+				/*offsetWidth的最大宽度不能超过一个定值,同样,最小值不能小于0*/
+				const offsetWidth = Math.min( this.$refs.slider.offsetWidth - barWidth/2 , Math.max(0,this.touch.progressWidth+delta) );
 				this._setProgress(offsetWidth);
 			},
 			handleTouchEnd(e){
 				this.touch.initial = false;
-				
-				const totalWidth = this.$refs.slider.offsetWidth - barWidth; 
+				/*const totalWidth = this.$refs.slider.offsetWidth - barWidth; 
 				const percent = this.$refs.progress.offsetWidth / totalWidth;
-				
-				this.$emit('percentChange',percent);
+				this.$emit('percentChange',percent); */
+				this._triggerPercent();
 			},
 			_setProgress(offsetWidth){
 				this.$refs.progress.style.width = `${offsetWidth}px`;
 				this.$refs.bar.style.transform = `translate3d(${offsetWidth}px,0,0)`;
+			},
+			handleChangeProgress(e){
+				const offsetWidth = e.offsetX - barWidth/2;
+				this._setProgress(offsetWidth);
+				this._triggerPercent()
+			},
+			_triggerPercent(){
+				const totalWidth = this.$refs.slider.offsetWidth - barWidth;
+				const percent = this.$refs.progress.offsetWidth / totalWidth;
+				this.$emit('percentChange',percent);
 			}
 		},
 		watch:{
