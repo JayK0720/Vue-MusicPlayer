@@ -38,9 +38,9 @@
 					</div>
 					<div class="operator-wrap">
 						<div class="mode" @click.prevent='handleCheckPlayMode'>
-							<i class="iconfont" v-if='mode === 0'>&#xe674;</i>
-							<i class="iconfont" v-else-if='mode === 1'>&#xe718;</i>
-							<i class="iconfont" v-else='mode === 2'>&#xe612;</i>
+							<i class="iconfont" v-if='mode===0'>&#xe674;</i>
+							<i class="iconfont" v-else-if='mode===1'>&#xe622;</i>
+							<i class="iconfont" v-else='mode===2'>&#xe612;</i>
 						</div>
 						<div class="prev" @click='handlePrev'>
 							<i class="iconfont">&#xe602;</i>
@@ -78,6 +78,7 @@
 	import {mapGetters,mapMutations} from 'vuex'
 	import ProgressBar from '@/base/progress-bar'
 	import {playMode} from '@/common/js/config'
+	import {shuffle} from '@/common/js/util.js'
 	export default{
 		name:'player',
 		data() {
@@ -94,7 +95,8 @@
 					'currentSong',
 					'playing',
 					'currentIndex',
-					'mode'
+					'mode',
+					'sequenceList'
 				]),
 			cdClass(){
 				return this.playing? 'play' : 'pause'
@@ -108,7 +110,8 @@
 				foldFullScreen:'SET_FULL_SCREEN',
 				setPlayingState:'SET_PLAYING',
 				setCurrentIndex:'SET_CURRENT_INDEX',
-				setPlayMode:'SET_MODE'
+				setPlayMode:'SET_MODE',
+				setPlayList:'SET_PLAY_LIST'
 			}),
 			handleFold(){
 				this.foldFullScreen(false);
@@ -147,7 +150,15 @@
 				}
 			},
 			handleCheckPlayMode(){
-				
+				const mode = (this.mode + 1)%3;
+				this.setPlayMode(mode);
+				let list = [];
+				if(this.mode === playMode.random){
+					list = shuffle(this.sequenceList);
+				}else{
+					list = this.sequenceList;
+				}
+				this.setPlayList(list);
 			},
 			ready(){
 				this.flag = true;
