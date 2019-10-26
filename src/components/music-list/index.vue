@@ -18,6 +18,10 @@
 			@scroll='scroll'
 		>
 			<div class="song-list-wrapper">
+				<div class="play-btn" @click='handlePlayAll'>
+					<i class="iconfont">&#xe652;</i>
+					<span>全部播放</span>
+				</div>
 				<SongList 
 					:songs='songs'
 					@selectItem='selectSong'
@@ -34,8 +38,8 @@
 	import Loading from '@/base/loading'
 	const TITLE_HEIGHT = 60;
 	import {prefixStyle} from '@/common/js/dom'
-	import {mapActions} from 'vuex'
-	
+	import {mapActions,mapGetters} from 'vuex'
+	import {getRandomInt} from '@/common/js/util'
 	export default{
 		name:'music-list',
 		components:{Scroll,SongList,Loading},
@@ -62,7 +66,8 @@
 		computed:{
 			bgStyle(){
 				return `backgroundImage:url(${this.bgImage})`
-			}
+			},
+			...mapGetters(['currentSong'])
 		},
 		mounted() {
 			this.bgHeight = this.$refs.bgImage.offsetHeight;
@@ -70,7 +75,7 @@
 			this.maxTranslateY = -this.bgHeight + TITLE_HEIGHT;
 		},
 		methods:{
-			...mapActions(['selectPlay']),
+			...mapActions(['selectPlay','playAllMusic']),
 			handleBack(){
 				this.$router.back()
 			},
@@ -127,6 +132,9 @@
 			*/
 			selectSong(item,index){
 				this.selectPlay({list:this.songs,index});
+			},
+			handlePlayAll(){
+				this.playAllMusic({list:this.songs,index:0});
 			}
 		},
 	}
@@ -181,6 +189,21 @@
 			height:100%;
 			width:100%;
 			background-color:#fafafa;
+		}
+		.play-btn{
+			padding-top:20px;
+			height:25px;
+			display:flex;
+			align-items:center;
+			.iconfont{
+				margin-right:8px;
+				color:#28fcb5;
+				font-size:24px;
+			}
+			span{
+				font-size:14px;
+				color:#212121;
+			}
 		}
 	}
 </style>

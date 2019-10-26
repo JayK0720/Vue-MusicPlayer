@@ -1,3 +1,6 @@
+import {getLyric} from '@/common/api/lyric'
+import {ERR_OK} from '@/common/api/config'
+import {Base64} from 'js-base64';
 class Song {
 	constructor({songid,songmid,singer,songname,albumname,duration,url,image}){
 		this.songid = songid;
@@ -8,6 +11,14 @@ class Song {
 		this.duration = duration;
 		this.url = url;
 		this.image = image;
+	}
+	getLyric(){
+		getLyric(this.songmid).then(res => {
+			if(res.retcode === ERR_OK){
+				this.lyric = Base64.decode(res.lyric);
+				console.log(this.lyric);
+			}
+		})
 	}
 }
 

@@ -70,6 +70,7 @@
 			@canplay='ready'
 			@error='error'
 			@timeupdate='timeupdate'
+			@ended='end'
 		></audio>
 	</div>
 </template>
@@ -103,7 +104,7 @@
 			},
 			percent(){
 				return this.currentTime / this.currentSong.duration;
-			}
+			},
 		},
 		methods:{
 			...mapMutations({
@@ -123,7 +124,10 @@
 			},
 			handlePrev(){
 				// 点击播放上一首
-				if(!this.flag) return;
+				if(!this.flag){
+					this.setPlayingState(false);
+					return;
+				}
 				let index = this.currentIndex - 1;
 				if(index === -1){
 					index = this.playList.length - 1;
@@ -133,7 +137,10 @@
 				this.flag = false;
 			},
 			handleNext(){
-				if(!this.flag) return;
+				if(!this.flag) {
+					this.setPlayingState(false);
+					return;
+				}
 				// 点击播放下一首,当index改变的时候,currentSong就会修改
 				let index = this.currentIndex + 1;
 				if(index === this.playList.length){
@@ -149,16 +156,51 @@
 					this.setPlayingState(true);
 				}
 			},
+			end(){
+				if(this.mode === playMode.loop){
+					this.loop();
+				}else{
+					this.handleNext();
+				}
+			},
+			loop(){
+				this.$refs.audio.currentTime = 0;
+				this.$refs.audio.play();
+			},
+			/*
+			在切换歌曲播放模式的时候,当前播放的歌曲在新的播放列表里的位置已经修改了，找到此时播放歌曲在新的播放列表里的位置,然后
+			修改index.
+			
+			todo:1
+			1. 点击歌曲的时候，设置了当前的播放列表 playList 以及 sequenceList, currentIndex, currentSong 来自playList[currentIndex]
+			2. 当切换播放模式为随机播放的时候, 修改了playList, 此时playList 和 循环列表播放的playList 不同
+			3. 切换播放模式后，再次点击播放列表里的歌曲时,比如点击的为第1首歌曲,由于playList已经修改，此时的currentSong 和 渲染的播放列表歌曲不同。
+			
+			
+			todo:2 此时切换歌曲的时候,由于播放歌曲列表已经为顺序播放，此时点击 上一曲 或者 下一曲的时候, 又变成了顺序播放
+			*/
 			handleCheckPlayMode(){
 				const mode = (this.mode + 1)%3;
 				this.setPlayMode(mode);
 				let list = [];
 				if(this.mode === playMode.random){
+					/*
+					传入this.sequenceList后，返回的list 为打乱后的数组，此时this.sequenceList本身也被修改了.
+					当从随机模式切换为顺序播放或者单曲循环的时候,this.sequenceList还是为打乱后的列表而不是原始数据。
+					所以在shuffle函数内部,不能直接修改this.sequenceList
+					*/
 					list = shuffle(this.sequenceList);
 				}else{
 					list = this.sequenceList;
 				}
+				this.resetIndex(list);
 				this.setPlayList(list);
+			},
+			resetIndex(list){
+				const index = list.findIndex((item) => {
+					return item.songid === this.currentSong.songid;
+				});
+				this.setCurrentIndex(index);
 			},
 			ready(){
 				this.flag = true;
@@ -180,9 +222,11 @@
 			}
 		},
 		watch:{
-			currentSong(){
+			currentSong(newSong,oldSong){
+				if(newSong.songid === oldSong.songid) return;
 				this.$nextTick(() => {
 					this.$refs.audio.play();
+					this.currentSong.getLyric();
 				}) 
 			},
 			playing(state){

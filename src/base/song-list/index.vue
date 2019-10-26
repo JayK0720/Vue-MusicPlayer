@@ -15,11 +15,6 @@
 <script>
 	export default{
 		name:'song-list',
-		data() {
-			return {
-				
-			}
-		},
 		props:{
 			songs:{
 				type:Array,

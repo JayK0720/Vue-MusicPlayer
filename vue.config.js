@@ -34,6 +34,22 @@ module.exports = {
 				.catch(err => {
 					console.log(err);
 				})
+			});
+			app.get('/api/getLyric',function(req,res){
+				const url = `https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?-=MusicJsonCallback_lrc`;
+				axios.get(url,{
+					headers:{
+						referer:'https://u.y.qq.com/',
+						host:'u.y.qq.com',
+					},
+					params:req.query
+				})
+				.then(response => {
+					res.json(response.data);
+				})
+				.catch(err => {
+					console.log(err);
+				})
 			})
 		}
 	}
