@@ -8,6 +8,10 @@ import fastclick from 'fastclick'
 import VueLazyload from 'vue-lazyload'
 import '@/common/scss/index.scss';
 import Audio from '@/base/audio'
+import VueAwesomeSwiper from 'vue-awesome-swiper'
+import 'swiper/dist/css/swiper.css'
+
+Vue.use(VueAwesomeSwiper);
 Vue.component('Audio',Audio)
 // click delay 300ms
 fastclick.attach(document.body);

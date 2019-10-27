@@ -13,12 +13,20 @@ class Song {
 		this.image = image;
 	}
 	getLyric(){
-		getLyric(this.songmid).then(res => {
-			if(res.retcode === ERR_OK){
-				this.lyric = Base64.decode(res.lyric);
-				console.log(this.lyric);
-			}
-		})
+		if(this.lyric) {
+			return Promise.resolve(this.lyric);
+		}else{
+			return new Promise((resolve,reject) => {
+				getLyric(this.songmid).then(res => {
+					if(res.retcode === ERR_OK){
+						this.lyric = Base64.decode(res.lyric);
+						resolve(this.lyric);
+					}else{
+						reject('no lyric');
+					}
+				})
+			})
+		}
 	}
 }
 

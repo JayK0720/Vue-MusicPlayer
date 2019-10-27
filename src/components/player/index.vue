@@ -14,8 +14,12 @@
 						<i class="iconfont">&#xe610;</i>
 					</div>
 				</div>
-				<div class="middle">
-					<div class="middle-left">
+				<div class="middle"
+					@touchstart.prevent='handleSlideStart'
+					@touchmove.prevent='handleSlideMove'
+					@touchend='handleSlideEnd'
+				>
+					<div class="slide-left">
 						<div class="singer-name">
 							<p class='text'>{{currentSong.singer}}</p>
 						</div>
@@ -25,10 +29,31 @@
 							</div>
 						</div>
 					</div>
-					<div class="middle-right">
+					<div class="slide-right" ref='lyric'>
+						<template v-if='currentLyric'>
+							<Scroll :data='currentLyric.lines'>
+								<div class="lyric-wrapper" ref='lyricWrapper'>
+									<template v-if='currentLyric.lines.length'>
+										<p
+											v-for='(item,index) in currentLyric.lines'
+											class='lyric-text'
+											:class='{active: number === index}'
+										>{{item.txt}}</p>
+									</template>
+									<template v-else>
+										<p>暂无歌词</p>
+									</template>
+								</div>
+							</Scroll>
+						</template>
+						<Loading v-show="(currentPage === 'lyric') && !currentLyric "/>
 					</div>
 				</div>
 				<div class="bottom">
+					<div class="dot-wrapper">
+						<span class="dot" :class="{active:currentPage === 'cd'}"></span>
+						<span class="dot" :class="{active:currentPage === 'lyric'}"></span>
+					</div>
 					<div class="progress-wrap">
 						<span class="current time">{{format(currentTime)}}</span>
 						<div class="progress-bar">
@@ -80,15 +105,26 @@
 	import ProgressBar from '@/base/progress-bar'
 	import {playMode} from '@/common/js/config'
 	import {shuffle} from '@/common/js/util.js'
+	import Lyric from 'lyric-parser'
+	import {prefixStyle} from '@/common/js/dom'
+	import Scroll from '@/base/scroll'
+	import Loading from '@/base/loading'
+	let transform = prefixStyle('transform')
+	let transitionDuration = prefixStyle('transitionDuration');
+	const TIME = 250;
+	const HEIGHT = 32;
 	export default{
 		name:'player',
 		data() {
 			return {
 				flag:false,
-				currentTime:0
+				currentTime:0,
+				currentLyric:null,
+				currentPage:'cd',
+				number:0
 			}
 		},
-		components:{ProgressBar},
+		components:{ProgressBar,Scroll,Loading},
 		computed:{
 			...mapGetters([
 					'fullScreen',
@@ -105,6 +141,9 @@
 			percent(){
 				return this.currentTime / this.currentSong.duration;
 			},
+		},
+		created(){
+			this.touch = {}
 		},
 		methods:{
 			...mapMutations({
@@ -151,10 +190,19 @@
 				this.flag = false;
 			},
 			handleSliderEnd(percent){
-				this.$refs.audio.currentTime = percent * this.currentSong.duration;
+				let currentTime = percent * this.currentSong.duration;
+				this.$refs.audio.currentTime = currentTime;
 				if(!this.playing){
 					this.setPlayingState(true);
 				}
+				this.number = 0;
+				const _this = this;
+				(function skip(){
+					if(currentTime*1000 > _this.currentLyric.lines[_this.number].time){
+						_this.number++;
+						skip();
+					}
+				})();
 			},
 			end(){
 				if(this.mode === playMode.loop){
@@ -175,7 +223,6 @@
 			1. 点击歌曲的时候，设置了当前的播放列表 playList 以及 sequenceList, currentIndex, currentSong 来自playList[currentIndex]
 			2. 当切换播放模式为随机播放的时候, 修改了playList, 此时playList 和 循环列表播放的playList 不同
 			3. 切换播放模式后，再次点击播放列表里的歌曲时,比如点击的为第1首歌曲,由于playList已经修改，此时的currentSong 和 渲染的播放列表歌曲不同。
-			
 			
 			todo:2 此时切换歌曲的时候,由于播放歌曲列表已经为顺序播放，此时点击 上一曲 或者 下一曲的时候, 又变成了顺序播放
 			*/
@@ -202,6 +249,12 @@
 				});
 				this.setCurrentIndex(index);
 			},
+			getLyric(){
+				this.currentSong.getLyric().then(lyric => {
+					// let currentLyric = this.formatLyric(lyric);
+					this.currentLyric = new Lyric(lyric);
+				})
+			},
 			ready(){
 				this.flag = true;
 			},
@@ -210,6 +263,17 @@
 			},
 			timeupdate(e){
 				this.currentTime = e.target.currentTime;
+				if(this.currentLyric){
+					if(e.target.currentTime*1000 >= this.currentLyric.lines[this.number+1].time){
+						this.number++;
+					}
+				}
+				if(this.number > 6){
+					let offsetY = - HEIGHT * (this.number - 6);
+					this.$refs.lyricWrapper.style[transform] = `translate3d(0,${offsetY}px,0)`;
+					this.$refs.lyricWrapper.style[transitionDuration] = `${TIME}ms`;
+				}
+				
 			},
 			format(interval){
 				let minute = Math.floor(interval / 60);
@@ -219,6 +283,62 @@
 			padzero(num){
 				let length = num.toString().length;
 				return ('00' + num).substring(length);
+			},
+			formatLyric(lyric){
+				let arr = lyric.split('\n');
+				const lyricArr = [];
+				arr.forEach((item) => {
+					let temp = item.split(']');
+					let time = temp[0].slice(1);
+					let text = temp[1];
+					lyricArr.push({
+						time:this.formatLyricTime(time),
+						text
+					})
+				})
+				return lyricArr
+			},
+			handleSlideStart(e){
+				this.touch.initial = true;
+				this.touch.startX = e.touches[0].pageX;
+				this.touch.startY = e.touches[0].pageY;
+			},
+			handleSlideMove(e){
+				if(!this.touch.initial) return;
+				let delX = e.touches[0].pageX - this.touch.startX;
+				let delY = e.touches[0].pageY - this.touch.startY;
+				/*
+				如果当前页是歌词页面,且竖向滚动的距离大于横向滚动的距离时，此时不切换页面。
+				*/
+				if( Math.abs(delY) > Math.abs(delX) ) return;
+				const currentLeft = this.currentPage === 'cd' ? 0 : -window.innerWidth;
+				let offsetWidth = Math.min(0,Math.max(-window.innerWidth,currentLeft + delX));
+				this.touch.percent = Math.abs( offsetWidth / window.innerWidth );
+				this.$refs.lyric.style[transform] = `translate3d(${offsetWidth}px,0,0)`;
+				this.$refs.lyric.style[transitionDuration] = '0ms';
+			},
+			handleSlideEnd(){
+				/*
+				滑动结束的时候停在哪里？从右往左滑, 如果滑动的距离 大于 屏幕宽度的 30%，则直接显示歌词页面
+				*/
+			   let offsetWidth = 0;
+			   if(this.currentPage === 'cd'){
+				   if(this.touch.percent >= 0.3){
+					   offsetWidth = -window.innerWidth;
+					   this.currentPage = 'lyric'
+				   }else{
+					   offsetWidth = 0;
+				   }
+			   }else{
+				   if(this.touch.percent <= 0.7){
+					   offsetWidth = 0;
+					   this.currentPage = 'cd';
+				   }else{
+					   offsetWidth = -window.innerWidth;
+				   }
+			   }
+			   this.$refs.lyric.style[transform] = `translate3d(${offsetWidth}px,0,0)`;
+			   this.$refs.lyric.style[transitionDuration] = `${TIME}ms`;
 			}
 		},
 		watch:{
@@ -226,7 +346,7 @@
 				if(newSong.songid === oldSong.songid) return;
 				this.$nextTick(() => {
 					this.$refs.audio.play();
-					this.currentSong.getLyric();
+					this.getLyric();
 				}) 
 			},
 			playing(state){
@@ -292,6 +412,8 @@
 			top:55px;
 			bottom:135px;
 			width:100%;
+			white-space:nowrap;
+			overflow:hidden;
 			.singer-name{
 				display:flex;
 				padding:0 10px;
@@ -313,10 +435,32 @@
 				height:1px;
 				background-color:#ffffff;
 			}
-			.middle-left{
+			.slide-left{
+				display:inline-block;
 				position:relative;
 				height:100%;
 				width:100%;
+				vertical-align:top;
+			}
+			.slide-right{
+				display:inline-block;
+				width:100%;
+				height:100%;
+				.wrapper{
+					height:100%;
+				}
+			}
+			.lyric-wrapper{
+				width:100%;
+				text-align:center;
+				.lyric-text{
+					padding:6px 0;
+					font-size:14px;
+					color:#fff;
+					&.active{
+						color:#2fcb97;
+					}
+				}
 			}
 			.cd-wrapper{
 				position:absolute;
@@ -353,8 +497,25 @@
 		}
 		.bottom{
 			position:absolute;
-			bottom:30px;
+			bottom:12px;
 			width:100%;
+			.dot-wrapper{
+				height:8px;
+				width:100%;
+				font-size:0;
+				text-align:center;
+				.dot{
+					display:inline-block;
+					margin:0 4px;
+					width:8px;
+					height:8px;
+					background-color:#817d74;
+					border-radius:50%;
+					&.active{
+						background-color:#fff;
+					}
+				}
+			}
 			.progress-wrap{
 				display:flex;
 				margin:0 auto;
