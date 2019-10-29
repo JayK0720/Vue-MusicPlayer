@@ -19,7 +19,7 @@
 					@touchmove.prevent='handleSlideMove'
 					@touchend='handleSlideEnd'
 				>
-					<div class="slide-left">
+					<div class="slide-left" ref='left'>
 						<div class="singer-name">
 							<p class='text'>{{currentSong.singer}}</p>
 						</div>
@@ -31,20 +31,18 @@
 					</div>
 					<div class="slide-right" ref='lyric'>
 						<template v-if='currentLyric'>
-							<Scroll :data='currentLyric.lines'>
-								<div class="lyric-wrapper" ref='lyricWrapper'>
-									<template v-if='currentLyric.lines.length'>
-										<p
-											v-for='(item,index) in currentLyric.lines'
-											class='lyric-text'
-											:class='{active: number === index}'
-										>{{item.txt}}</p>
-									</template>
-									<template v-else>
-										<p>暂无歌词</p>
-									</template>
-								</div>
-							</Scroll>
+							<div class="lyric-wrapper" ref='lyricWrapper'>
+								<template v-if='currentLyric.lines.length'>
+									<p
+										v-for='(item,index) in currentLyric.lines'
+										class='lyric-text'
+										:class='{active: number === index}'
+									>{{item.txt}}</p>
+								</template>
+								<template v-else>
+									<p>暂无歌词</p>
+								</template>
+							</div>
 						</template>
 						<Loading v-show="(currentPage === 'lyric') && !currentLyric "/>
 					</div>
@@ -121,7 +119,7 @@
 				currentTime:0,
 				currentLyric:null,
 				currentPage:'cd',
-				number:0
+				number:-1
 			}
 		},
 		components:{ProgressBar,Scroll,Loading},
@@ -167,12 +165,16 @@
 					this.setPlayingState(false);
 					return;
 				}
-				let index = this.currentIndex - 1;
-				if(index === -1){
-					index = this.playList.length - 1;
+				if(this.playList.length === 1){
+					this.loop();
+				}else{
+					let index = this.currentIndex - 1;
+					if(index === -1){
+						index = this.playList.length - 1;
+					}
+					this.setCurrentIndex(index);
+					this.setPlayingState(true);	
 				}
-				this.setCurrentIndex(index);
-				this.setPlayingState(true);
 				this.flag = false;
 			},
 			handleNext(){
@@ -180,13 +182,20 @@
 					this.setPlayingState(false);
 					return;
 				}
-				// 点击播放下一首,当index改变的时候,currentSong就会修改
-				let index = this.currentIndex + 1;
-				if(index === this.playList.length){
-					index = 0;
-				}
-				this.setCurrentIndex(index);
-				this.setPlayingState(true);
+				/*
+				点击播放下一首,当index改变的时候,currentSong就会修改
+				如果播放列表只有一条歌曲,那么点击下一曲的时候,currentSong不会修改，此时调用loop方法
+				*/ 
+			   if(this.playList.length === 1) {
+				   this.loop();
+			   }else{
+				   let index = this.currentIndex + 1;
+				   if(index === this.playList.length){
+				   	index = 0;
+				   }
+				   this.setCurrentIndex(index);
+				   this.setPlayingState(true);
+			   }
 				this.flag = false;
 			},
 			handleSliderEnd(percent){
@@ -198,6 +207,7 @@
 				this.number = 0;
 				const _this = this;
 				(function skip(){
+					if(_this.number > _this.currentLyric.lines.length -1) return;
 					if(currentTime*1000 > _this.currentLyric.lines[_this.number].time){
 						_this.number++;
 						skip();
@@ -207,6 +217,8 @@
 			end(){
 				if(this.mode === playMode.loop){
 					this.loop();
+					this.$refs.left.style['top'] = 0;
+					this.number = -1;
 				}else{
 					this.handleNext();
 				}
@@ -264,16 +276,19 @@
 			timeupdate(e){
 				this.currentTime = e.target.currentTime;
 				if(this.currentLyric){
+					if(this.number > this.currentLyric.lines.length-1) return;
 					if(e.target.currentTime*1000 >= this.currentLyric.lines[this.number+1].time){
 						this.number++;
 					}
-				}
-				if(this.number > 6){
-					let offsetY = - HEIGHT * (this.number - 6);
-					this.$refs.lyricWrapper.style[transform] = `translate3d(0,${offsetY}px,0)`;
+					if(this.number > 6){
+						let offsetY = - HEIGHT * (this.number - 6);
+						this.$refs.lyricWrapper.style['top'] = `${offsetY}px`;
+					}else{
+						this.$refs.lyricWrapper.style['top'] = '0px';
+					}
 					this.$refs.lyricWrapper.style[transitionDuration] = `${TIME}ms`;
 				}
-				
+
 			},
 			format(interval){
 				let minute = Math.floor(interval / 60);
@@ -316,29 +331,39 @@
 				this.touch.percent = Math.abs( offsetWidth / window.innerWidth );
 				this.$refs.lyric.style[transform] = `translate3d(${offsetWidth}px,0,0)`;
 				this.$refs.lyric.style[transitionDuration] = '0ms';
+				
+				// 向左滑动的时候 改变cd的透明度
+				this.$refs.left.style['opacity'] = 1 - this.touch.percent;
+				this.$refs.left.style[transitionDuration] = `${TIME}ms`;
 			},
 			handleSlideEnd(){
 				/*
 				滑动结束的时候停在哪里？从右往左滑, 如果滑动的距离 大于 屏幕宽度的 30%，则直接显示歌词页面
 				*/
 			   let offsetWidth = 0;
+			   let opacity = 0;
 			   if(this.currentPage === 'cd'){
 				   if(this.touch.percent >= 0.3){
 					   offsetWidth = -window.innerWidth;
 					   this.currentPage = 'lyric'
+					   opacity = 0
 				   }else{
 					   offsetWidth = 0;
+					   opacity = 1;
 				   }
 			   }else{
 				   if(this.touch.percent <= 0.7){
 					   offsetWidth = 0;
 					   this.currentPage = 'cd';
+					   opacity = 1;
 				   }else{
 					   offsetWidth = -window.innerWidth;
+					   opacity = 0;
 				   }
 			   }
 			   this.$refs.lyric.style[transform] = `translate3d(${offsetWidth}px,0,0)`;
 			   this.$refs.lyric.style[transitionDuration] = `${TIME}ms`;
+			   this.$refs.left.style['opacity'] = opacity;
 			}
 		},
 		watch:{
@@ -347,6 +372,8 @@
 				this.$nextTick(() => {
 					this.$refs.audio.play();
 					this.getLyric();
+					this.number = -1;
+					//this.$refs.lyricWrapper.style['top'] = 0;
 				}) 
 			},
 			playing(state){
@@ -446,17 +473,26 @@
 				display:inline-block;
 				width:100%;
 				height:100%;
+				overflow:auto;
 				.wrapper{
+					position:relative;
+					width:100%;
 					height:100%;
+					overflow:hidden;
 				}
 			}
 			.lyric-wrapper{
+				box-sizing:border-box;
+				position:absolute;
+				top:0;
+				padding:0 30px;
 				width:100%;
 				text-align:center;
 				.lyric-text{
 					padding:6px 0;
 					font-size:14px;
 					color:#fff;
+					white-space:normal;
 					&.active{
 						color:#2fcb97;
 					}
