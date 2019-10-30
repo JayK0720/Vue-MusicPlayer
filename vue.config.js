@@ -50,6 +50,22 @@ module.exports = {
 				.catch(err => {
 					console.log(err);
 				})
+			}),
+			app.get('/api/getDisc',function(req,res){
+				const url = `https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg`;
+				axios.get(url,{
+					headers:{
+						referer:'https://u.y.qq.com/',
+						host:'u.y.qq.com',
+					},
+					params:req.query
+				})
+				.then(response => {
+					res.json(response.data)
+				})
+				.catch(err => {
+					console.log(err)
+				})
 			})
 		}
 	}

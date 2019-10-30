@@ -16,6 +16,7 @@ export default new Vuex.Store({
 		sequenceList:[],
 		mode:playMode.sequence,
 		currentIndex:-1,
+		disc:{}
 	},
 	mutations,
 	getters,

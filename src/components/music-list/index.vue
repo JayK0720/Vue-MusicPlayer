@@ -164,6 +164,7 @@
 			background-size:cover;
 			background-repeat:no-repeat;
 			transform-origin:center top;
+			background-color:#333;
 		}
 		.singer-name{
 			position:absolute;

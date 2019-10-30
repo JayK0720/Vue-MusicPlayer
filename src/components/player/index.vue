@@ -276,7 +276,7 @@
 			timeupdate(e){
 				this.currentTime = e.target.currentTime;
 				if(this.currentLyric){
-					if(this.number > this.currentLyric.lines.length-1) return;
+					if(this.number >= this.currentLyric.lines.length-1) return;
 					if(e.target.currentTime*1000 >= this.currentLyric.lines[this.number+1].time){
 						this.number++;
 					}
@@ -373,7 +373,6 @@
 					this.$refs.audio.play();
 					this.getLyric();
 					this.number = -1;
-					//this.$refs.lyricWrapper.style['top'] = 0;
 				}) 
 			},
 			playing(state){
@@ -436,7 +435,7 @@
 		}
 		.middle{
 			position:fixed;
-			top:55px;
+			top:70px;
 			bottom:135px;
 			width:100%;
 			white-space:nowrap;
@@ -485,7 +484,7 @@
 				box-sizing:border-box;
 				position:absolute;
 				top:0;
-				padding:0 30px;
+				padding:0 40px;
 				width:100%;
 				text-align:center;
 				.lyric-text{

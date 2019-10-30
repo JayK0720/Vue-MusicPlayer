@@ -12,7 +12,8 @@ const getters = {
 			songname:'让生活充满音乐',
 			singer:''
 		}
-	}
+	},
+	disc:(state) => state.disc,
 }
 
 export default getters;
