@@ -1,6 +1,6 @@
 <template>
 	<transition name='slide' appear>
-		<MusicList :title='title' :bg-image='bgImage'/>
+		<MusicList :title='title' :bg-image='bgImage' :songs='songList'/>
 	</transition>
 </template>
 
@@ -10,6 +10,7 @@
 	import {getSongList} from '@/common/api/recommend'
 	import {ERR_OK} from '@/common/api/config'
 	import {createDiscSong} from '@/common/js/song.js'
+	import {getSongUrl} from '@/common/api/singer'
 	export default{
 		name:'disc',
 		data(){
@@ -36,9 +37,7 @@
 			_getSongList(){
 				getSongList(this.disc.dissid).then(res => {
 					if(res.code === ERR_OK){
-						console.log(res.cdlist[0].songlist)
 						this.songList = this._normalizeSong(res.cdlist[0].songlist);
-						console.log(this.songList);
 					}
 				})
 			},
@@ -46,7 +45,14 @@
 				const ret = []
 				list.forEach((musicData) => {
 					if(musicData.mid && musicData.album.mid){
-						ret.push(createDiscSong(musicData))
+						getSongUrl(musicData.mid).then(res => {
+							if(res.req.code === ERR_OK){
+								let vkey = res.req.data.vkey;
+								let url = `http://aqqmusic.tc.qq.com/amobile.music.tc.qq.com/C400${musicData.mid}.m4a?guid=4427256653&${vkey}&uin=8095&fromtag=38`;
+								let data = Object.assign({},musicData,{url});
+								ret.push(createDiscSong(data));
+							}
+						})
 					}
 				})
 				return ret;
