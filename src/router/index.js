@@ -28,7 +28,13 @@ export default new VueRouter({
 		},
 		{
 			path:'/rank',
-			component:() => import ('@/views/rank')
+			component:() => import ('@/views/rank'),
+			children:[
+				{
+					path:'toplist/:topid',
+					component:() => import('@/components/rank-list')
+				}
+			]
 		},
 		{
 			path:'/search',

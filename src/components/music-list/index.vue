@@ -57,6 +57,10 @@
 				default:function(){
 					return []
 				}
+			},
+			rank:{
+				type:Boolean,
+				default:false
 			}
 		},
 		created() {

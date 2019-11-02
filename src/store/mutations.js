@@ -22,6 +22,9 @@ const mutations = {
 	},
 	SET_DISC(state,disc){
 		state.disc = disc;
+	},
+	SET_TOP_LIST(state,toplist){
+		state.toplist = toplist;
 	}
 }
 
