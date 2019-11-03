@@ -14,7 +14,7 @@ const getters = {
 		}
 	},
 	disc:(state) => state.disc,
-	toplist:(state) => state.toplist
+	toplist:(state) => state.toplist,
 }
 
 export default getters;

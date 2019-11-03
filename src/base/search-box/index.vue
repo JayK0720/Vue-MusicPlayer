@@ -32,6 +32,9 @@
 		methods:{
 			handleClear(){
 				this.query = ''
+			},
+			setQuery(text){
+				this.query = text
 			}
 		}
 	}
@@ -39,6 +42,7 @@
 
 <style lang='scss' scoped>
 	.search-box{
+		padding:0 16px;
 		display:flex;
 		height:32px;
 		border-radius:16px;
@@ -49,6 +53,7 @@
 			border:none;
 			outline:none;
 			height:100%;
+			width:100%;
 			flex:1;
 			caret-color:#30f5ba;
 		}

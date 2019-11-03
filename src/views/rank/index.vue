@@ -92,21 +92,22 @@
 				this.$router.push(`/rank/toplist/${data.topId}`);
 				this.setTopList(data);
 			}
-		},
-		
+		}
 	}
 </script>
 
 <style scoped lang='scss'>
 	.rank-wrapper{
 		position:fixed;
-		padding:0 14px;
 		left:0;
 		right:0;
 		top:78px;
 		bottom:45px;
 		background-color:#f6f6f6;
 		color:#232323;
+		section{
+			padding:0 16px;
+		}
 	}
 	.wrapper{
 		width:100%;
