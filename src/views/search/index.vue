@@ -1,29 +1,31 @@
 <template>
 	<div class="search-wrapper">
 		<SearchBox ref='searchBox' @query='handleSearch'/>
-		<div class="hot-search" v-show='!query'>
-			<h1 class="hot-title">热门搜索</h1>
-			<ul class="hot-list">
-				<li 
-					v-for='(item,index) in hotKey' 
-					:key='index' 
-					class='hot-item'
-					@click='handleAddQuery(item.title)'
-				>
-					<div 
-						class="index" :class='{active:index < 3}'
-					>{{index+1}}</div>
-					<div class="text">
-						<p class="title">
-							<span>{{item.title}}</span>
-							<span class="tag" v-if='item.source === 1'>热</span>
-						</p>
-						<p class="description">{{item.description}}</p>
-					</div>
-					<div class="score">{{item.score}}</div>
-				</li>
-			</ul>
-		</div>
+		<Scroll :data='hotKey' v-show='!query' class='hot-wrapper'>
+			<div class="hot-search" >
+				<h1 class="hot-title">热门搜索</h1>
+				<ul class="hot-list">
+					<li 
+						v-for='(item,index) in hotKey' 
+						:key='index' 
+						class='hot-item'
+						@click='handleAddQuery(item.title)'
+					>
+						<div 
+							class="index" :class='{active:index < 3}'
+						>{{index+1}}</div>
+						<div class="text">
+							<p class="title">
+								<span>{{item.title}}</span>
+								<span class="tag" v-if='item.source === 1'>热</span>
+							</p>
+							<p class="description">{{item.description}}</p>
+						</div>
+						<div class="score">{{item.score}}</div>
+					</li>
+				</ul>
+			</div>
+		</Scroll>
 		<div class="result-wrapper" v-show='query'>
 			<Suggest :query='query'/>
 		</div>
@@ -72,10 +74,13 @@
 		position:fixed;
 		top:78px;
 		bottom:45px;
-		left:0;
-		right:0;
+		width:100%;
 	}
-	.wrapper{
+	.hot-wrapper,.result-wrapper{
+		position:fixed;
+		top:110px;
+		bottom:45px;
+		width:100%;
 		overflow:auto;
 	}
 	.hot-search{

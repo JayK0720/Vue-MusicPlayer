@@ -37,7 +37,7 @@ export function getHotKey(){
 	return jsonp(url,reqData);
 }
 
-export function search(keyword,page,zhida){
+export function search(keyword,page,zhida,perpage){
 	const url = '/api/search';
 	const data = {
 		g_tk:5381,
@@ -56,8 +56,8 @@ export function search(keyword,page,zhida){
 		ie: 'utf-8',
 		sem: 1,
 		aggr: 0,
-		perpage: 20,
-		n: 20,
+		perpage,
+		n: perpage,
 		p: page,
 		remoteplace: 'txt.mqq.all'
 	}

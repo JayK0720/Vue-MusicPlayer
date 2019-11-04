@@ -24,6 +24,10 @@
 			listenScroll:{
 				type:Boolean,
 				default:false
+			},
+			pullRefresh:{
+				type:Boolean,
+				default:false
 			}
 		},
 		watch:{
@@ -48,6 +52,13 @@
 				if(this.listenScroll){
 					this.scroll.on('scroll', (pos) => {
 						this.$emit('scroll',pos);
+					})
+				}
+				if(this.pullRefresh){
+					this.scroll.on('scrollEnd',() => {
+						if(this.scroll.y <= (this.scroll.maxScrollY+50)){
+							this.$emit('scrollToEnd');
+						}
 					})
 				}
 			},

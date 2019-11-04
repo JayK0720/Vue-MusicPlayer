@@ -1,7 +1,11 @@
 <template>
-	<Scroll class="suggest-wrapper" :data='result'>
-		<section>
-			<div class="singer-info" v-show='singerInfo.singermid'>
+	<Scroll 
+		class="suggest-wrapper" 
+		:pull-refresh='pullRefresh' 
+		@scrollToEnd='handlePullRefresh'
+	>
+		<ul class='suggest-list'>
+			<li class="singer-info" v-show='singerInfo.singermid'>
 				<div class="avatar">
 					<img :src="avatar" :alt="singerInfo.singername">
 				</div>
@@ -12,18 +16,16 @@
 						<span>专辑：{{singerInfo.albumnum}}</span>
 					</p>
 				</div>
-			</div>
-			<ul class='suggest-list'>
-				<li 
-					class='suggest-item' 
-					v-for='(item,index) in result'
-					:key='index'
-				>
-					<p class="songname">{{item.songname}}</p>
-					<p class='song-info'>{{item.singer}}-{{item.albumname}}</p>
-				</li>
-			</ul>
-		</section>
+			</li>
+			<li 
+				class='suggest-item' 
+				v-for='(item,index) in result'
+				:key='index'
+			>
+				<p class="songname">{{item.songname}}</p>
+				<p class='song-info'>{{item.singer}}-{{item.albumname}}</p>
+			</li>
+		</ul>
 	</Scroll>
 </template>
 
@@ -33,7 +35,7 @@
 	import {createSong} from '@/common/js/song'
 	import {getSongUrl} from '@/common/api/singer'
 	import Scroll from '@/base/scroll'
-	
+	const perpage = 20;
 	export default{
 		name:'suggest',
 		data(){
@@ -41,7 +43,9 @@
 				page:1,
 				keyword:'',
 				result:[],
-				singerInfo:{}
+				singerInfo:{},
+				pullRefresh:true,
+				hasMore:true
 			}
 		},
 		computed:{
@@ -68,17 +72,36 @@
 			}
 		},
 		methods:{
+			/*
+			上拉加载,当滚动到一定的位置加载更多数据,定义一个flag 是否有更多的数据可以获取，默认为true,当所有的数据都获取完毕设为false
+			定义一个函数 判断 当前数据是否获取完毕。
+			*/
 			search(){
-				console.log(this.query);
 				if(!this.query) return;
-				search(this.query,this.page,this.showSinger).then(res => {
+				this.hasMore = true;
+				search(this.query,this.page,this.showSinger,perpage).then(res => {
 					if(res.code === ERR_OK){
 						if(res.data.zhida && res.data.zhida.singermid){
 							this.singerInfo = res.data.zhida
 						}
 						if(res.data.song){
+							console.log(res.data);
 							this.result = this._normalizeSong(res.data.song.list);
-							console.log(this.result)
+							this._checkMore(res.data);
+						}
+					}
+				})
+			},
+			handlePullRefresh(){
+				if(!this.hasMore){
+					return;
+				}
+				this.page++;
+				search(this.query,this.page,this.showSinger,perpage).then(res => {
+					if(res.code === ERR_OK){
+						if(res.data.song){
+							this.result = this.result.concat(this._normalizeSong(res.data.song.list));
+							this._checkMore(res.data);
 						}
 					}
 				})
@@ -98,6 +121,12 @@
 					}
 				})
 				return ret;
+			},
+			_checkMore(data){
+				const song = data.song;
+				if(!song.list.length || song.curpage * perpage > song.totalnum){
+					this.hasMore = false;
+				}
 			}
 		}
 	}
