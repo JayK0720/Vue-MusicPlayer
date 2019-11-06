@@ -29,13 +29,13 @@
 			...mapGetters(['singer'])
 		},
 		created(){
-			const {singerMid} = this.singer;
-			this._getSongs(singerMid);
+			const {singermid} = this.singer;
+			this._getSongs(singermid);
 		},
 		methods:{
 			// 获取当前当前歌手的歌曲列表
-			_getSongs(singerMid){
-				getSongs(singerMid).then(res => {
+			_getSongs(singermid){
+				getSongs(singermid).then(res => {
 					if(res.code === ERR_OK){
 						this.songsList = this._normalizeSong(res.data.list);
 					}

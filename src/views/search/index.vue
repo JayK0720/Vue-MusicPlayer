@@ -29,6 +29,7 @@
 		<div class="result-wrapper" v-show='query'>
 			<Suggest :query='query'/>
 		</div>
+		<router-view></router-view>
 	</div>
 </template>
 

@@ -69,3 +69,12 @@ export function getSongUrl(songmid){
 		return Promise.resolve(res.data);
 	})
 }
+
+export class Singer{
+	constructor({id,singermid,singername}){
+		this.id = id,
+		this.singermid = singermid,
+		this.singername = singername,
+		this.avatar = `https://y.gtimg.cn/music/photo_new/T001R300x300M000${singermid}.jpg?max_age=2592000`
+	}
+}

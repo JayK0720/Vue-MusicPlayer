@@ -10,7 +10,7 @@
 	import {ERR_OK} from '@/common/api/config'
 	import ListView from '@/base/listview'
 	import {mapMutations} from 'vuex'
-	
+	import {Singer} from '@/common/api/singer'
 	const HOT_NAME = '热门歌手',
 		  HOT_NAME_LENGTH = 10;
 	
@@ -86,7 +86,7 @@
 					   map.hot.items.push({
 						   name:item.Fsinger_name,
 						   id:item.Fsinger_id,
-						   singerMid:item.Fsinger_mid,
+						   singermid:item.Fsinger_mid,
 						   avatar:`http://y.gtimg.cn/music/photo_new/T001R150x150M000${item.Fsinger_mid}.webp`
 					   });
 				   }

@@ -25,7 +25,7 @@
 				type:Boolean,
 				default:false
 			},
-			pullRefresh:{
+			pullup:{
 				type:Boolean,
 				default:false
 			}
@@ -54,9 +54,9 @@
 						this.$emit('scroll',pos);
 					})
 				}
-				if(this.pullRefresh){
+				if(this.pullup){
 					this.scroll.on('scrollEnd',() => {
-						if(this.scroll.y <= (this.scroll.maxScrollY+50)){
+						if(this.scroll.y <= (this.scroll.maxScrollY + 50)){
 							this.$emit('scrollToEnd');
 						}
 					})

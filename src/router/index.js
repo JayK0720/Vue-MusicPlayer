@@ -38,7 +38,13 @@ export default new VueRouter({
 		},
 		{
 			path:'/search',
-			component:() => import ('@/views/search')
+			component:() => import ('@/views/search'),
+			children:[
+				{
+					path:':singerId',
+					component:() => import('@/components/singer-detail')
+				}
+			]
 		},
 		{
 			path:'/',

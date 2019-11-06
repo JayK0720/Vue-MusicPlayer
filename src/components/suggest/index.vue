@@ -1,13 +1,19 @@
 <template>
 	<Scroll 
 		class="suggest-wrapper" 
-		:pull-refresh='pullRefresh' 
+		:pullup='pullup' 
 		@scrollToEnd='handlePullRefresh'
+		:data='result'
+		ref='suggest'
 	>
 		<ul class='suggest-list'>
-			<li class="singer-info" v-show='singerInfo.singermid'>
+			<li 
+				class="singer-info" 
+				v-if='singerInfo.singermid'
+				@click='handleSingerDetail'
+			>
 				<div class="avatar">
-					<img :src="avatar" :alt="singerInfo.singername">
+					<img :src=" 'https://y.gtimg.cn/music/photo_new/T001R68x68M000'+this.singerInfo.singermid+'.jpg?max_age=2592000' " :alt="singerInfo.singername">
 				</div>
 				<div class="info">
 					<p class="singername">{{singerInfo.singername}}</p>
@@ -15,6 +21,9 @@
 						<span>歌曲：{{singerInfo.songnum}}</span>
 						<span>专辑：{{singerInfo.albumnum}}</span>
 					</p>
+				</div>
+				<div class='detail-arrow'>
+					<i class="iconfont">&#xe721;</i>
 				</div>
 			</li>
 			<li 
@@ -35,25 +44,19 @@
 	import {createSong} from '@/common/js/song'
 	import {getSongUrl} from '@/common/api/singer'
 	import Scroll from '@/base/scroll'
+	import {mapMutations} from 'vuex'
+	import {Singer} from '@/common/api/singer'
 	const perpage = 20;
 	export default{
 		name:'suggest',
 		data(){
 			return {
 				page:1,
-				keyword:'',
 				result:[],
 				singerInfo:{},
-				pullRefresh:true,
+				pullup:true,
 				hasMore:true
 			}
-		},
-		computed:{
-			avatar(){
-				if(this.singerInfo.singermid){
-					return `https://y.gtimg.cn/music/photo_new/T001R68x68M000${this.singerInfo.singermid}.jpg?max_age=2592000`
-				}
-			},
 		},
 		components:{Scroll},
 		props:{
@@ -67,8 +70,9 @@
 			}
 		},
 		watch:{
-			query(){
-				this.search()
+			query(newQuery){
+				if(!newQuery) return
+				this.search(newQuery)
 			}
 		},
 		methods:{
@@ -76,34 +80,43 @@
 			上拉加载,当滚动到一定的位置加载更多数据,定义一个flag 是否有更多的数据可以获取，默认为true,当所有的数据都获取完毕设为false
 			定义一个函数 判断 当前数据是否获取完毕。
 			*/
+		   ...mapMutations({
+			   setSinger:'SET_SINGER'
+		   }),
+		   refresh(){
+			   this.$refs.suggest.refresh()
+		   },
 			search(){
 				if(!this.query) return;
+				this.page = 1;
 				this.hasMore = true;
+				this.$refs.suggest.scrollTo(0, 0);
 				search(this.query,this.page,this.showSinger,perpage).then(res => {
 					if(res.code === ERR_OK){
 						if(res.data.zhida && res.data.zhida.singermid){
 							this.singerInfo = res.data.zhida
 						}
 						if(res.data.song){
-							console.log(res.data);
 							this.result = this._normalizeSong(res.data.song.list);
-							this._checkMore(res.data);
 						}
+						this._checkMore(res.data);
 					}
 				})
 			},
 			handlePullRefresh(){
 				if(!this.hasMore){
-					return;
+					return
 				}
-				this.page++;
+				this.page++
 				search(this.query,this.page,this.showSinger,perpage).then(res => {
 					if(res.code === ERR_OK){
-						if(res.data.song){
-							this.result = this.result.concat(this._normalizeSong(res.data.song.list));
-							this._checkMore(res.data);
-						}
+						/*const songs = this._normalizeSong(res.data.song.list);
+						this.result.push(...songs); */
+						
+						const songs = this._normalizeSong(res.data.song.list);
+						this.result = this.result.concat(songs);
 					}
+					this._checkMore(res.data);
 				})
 			},
 			_normalizeSong(list){
@@ -124,9 +137,19 @@
 			},
 			_checkMore(data){
 				const song = data.song;
-				if(!song.list.length || song.curpage * perpage > song.totalnum){
+				if(!song.list.length || (song.curnum+song.curpage*perpage) > song.totalnum){
 					this.hasMore = false;
 				}
+			},
+			handleSingerDetail(){
+				const singer = new Singer({
+					id:this.singerInfo.singerid,
+					name:this.singerInfo.singername,
+					singermid:this.singerInfo.singermid,
+					avatar:`http://y.gtimg.cn/music/photo_new/T001R150x150M000${this.singerInfo.singermid}.webp`
+				})
+				this.setSinger(singer)
+				this.$router.push(`/search/${singer.id}`)
 			}
 		}
 	}
@@ -141,6 +164,7 @@
 		display:flex;
 		height:60px;
 		align-items:center;
+		justify-content:space-between;
 		.avatar{
 			width:60px;
 			height:60px;
@@ -149,7 +173,9 @@
 			}
 		}
 		.info{
+			flex:1;
 			padding-left:10px;
+			min-width:0;
 			.singer-name{
 				font-size:14px;
 				font-weight:bold;
@@ -158,6 +184,16 @@
 			.music-number{
 				font-size:12px;
 				color: rgba(26,26,26,.5);
+			}
+		}
+		.detail-arrow{
+			width:20px;
+			height:20px;
+			text-align:center;
+			line-height:20px;
+			transform:scale(-1);
+			.iconfont{
+				font-size:20px;
 			}
 		}
 	}
