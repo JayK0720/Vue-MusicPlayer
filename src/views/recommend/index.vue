@@ -88,7 +88,6 @@
 				}
 			},
 			handleSelectDisc(item){
-				console.log(item);
 				this.setDisc(item);
 				this.$router.push(`/recommend/disc/${item.id}`)
 			}

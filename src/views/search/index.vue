@@ -26,9 +26,7 @@
 				</ul>
 			</div>
 		</Scroll>
-		<div class="result-wrapper" v-show='query'>
-			<Suggest :query='query'/>
-		</div>
+		<Suggest :query='query' v-show='query'/>
 		<router-view></router-view>
 	</div>
 </template>
@@ -59,9 +57,11 @@
 					}
 				})
 			},
+			/*点击热门关键词的时候 调用子组件的方法,将点击的关键字 添加设置为 input 的搜索内容*/
 			handleAddQuery(query){
 				this.$refs.searchBox.setQuery(query);
 			},
+			/*子组件派发出的事件 获取到 搜索框的关键词,然后 将获取到的文本 传递给子组件 suggest*/
 			handleSearch(query){
 				this.query = query;
 			}
@@ -72,16 +72,17 @@
 
 <style lang='scss' scoped>
 	.search-wrapper{
+		display:flex;
+		flex-direction:column;
 		position:fixed;
+		width:100%;
 		top:78px;
 		bottom:45px;
-		width:100%;
 	}
-	.hot-wrapper,.result-wrapper{
-		position:fixed;
-		top:110px;
-		bottom:45px;
-		width:100%;
+	.hot-wrapper{
+		flex:1;
+	}
+	.hot-wrapper{
 		overflow:auto;
 	}
 	.hot-search{

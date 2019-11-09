@@ -1,41 +1,47 @@
 <template>
-	<Scroll 
-		class="suggest-wrapper" 
-		:pullup='pullup' 
-		@scrollToEnd='handlePullRefresh'
-		:data='result'
-		ref='suggest'
-	>
-		<ul class='suggest-list'>
-			<li 
-				class="singer-info" 
-				v-if='singerInfo.singermid'
-				@click='handleSingerDetail'
-			>
-				<div class="avatar">
-					<img :src=" 'https://y.gtimg.cn/music/photo_new/T001R68x68M000'+this.singerInfo.singermid+'.jpg?max_age=2592000' " :alt="singerInfo.singername">
-				</div>
-				<div class="info">
-					<p class="singername">{{singerInfo.singername}}</p>
-					<p class="music-number">
-						<span>歌曲：{{singerInfo.songnum}}</span>
-						<span>专辑：{{singerInfo.albumnum}}</span>
-					</p>
-				</div>
-				<div class='detail-arrow'>
-					<i class="iconfont">&#xe721;</i>
-				</div>
-			</li>
-			<li 
-				class='suggest-item' 
-				v-for='(item,index) in result'
-				:key='index'
-			>
-				<p class="songname">{{item.songname}}</p>
-				<p class='song-info'>{{item.singer}}-{{item.albumname}}</p>
-			</li>
-		</ul>
-	</Scroll>
+	<div class="suggest-wrapper">
+		<Scroll
+			:pullup='pullup' 
+			@scrollToEnd='handlePullRefresh'
+			:data='result'
+			ref='suggest'
+		>
+			<ul class='suggest-list'>
+				<li 
+					class="singer-info" 
+					v-if='singerInfo.singermid'
+					@click='handleSingerDetail'
+				>
+					<div class="avatar">
+						<img :src=" 'https://y.gtimg.cn/music/photo_new/T001R68x68M000'+this.singerInfo.singermid+'.jpg?max_age=2592000' " :alt="singerInfo.singername">
+					</div>
+					<div class="info">
+						<p class="singername">{{singerInfo.singername}}</p>
+						<p class="music-number">
+							<span>歌曲：{{singerInfo.songnum}}</span>
+							<span>专辑：{{singerInfo.albumnum}}</span>
+						</p>
+					</div>
+					<div class='detail-arrow'>
+						<i class="iconfont">&#xe721;</i>
+					</div>
+				</li>
+				<li 
+					class='suggest-item' 
+					v-for='(item,index) in result'
+					:key='index'
+					@click='handlePlaySearchSong(item)'
+				>
+					<p class="songname">{{item.songname}}</p>
+					<p class='song-info'>{{item.singer}}-{{item.albumname}}</p>
+				</li>
+			</ul>
+			<div class="no-result-wrapper" v-show='noResult'>
+				<noResult title='暂无搜索结果'></noResult>
+			</div>
+		</Scroll>
+		<Loading v-show='!result.length && !noResult'/>
+	</div>
 </template>
 
 <script>
@@ -44,9 +50,11 @@
 	import {createSong} from '@/common/js/song'
 	import {getSongUrl} from '@/common/api/singer'
 	import Scroll from '@/base/scroll'
-	import {mapMutations} from 'vuex'
+	import {mapMutations,mapActions} from 'vuex'
 	import {Singer} from '@/common/api/singer'
 	const perpage = 20;
+	import Loading from '@/base/loading'
+	import noResult from '@/base/no-result'
 	export default{
 		name:'suggest',
 		data(){
@@ -55,10 +63,11 @@
 				result:[],
 				singerInfo:{},
 				pullup:true,
-				hasMore:true
+				hasMore:true,
+				noResult:false
 			}
 		},
-		components:{Scroll},
+		components:{Scroll,Loading,noResult},
 		props:{
 			query:{
 				type:String,
@@ -70,6 +79,7 @@
 			}
 		},
 		watch:{
+			/*监听获取到的搜索框的文本内容然后调用search方法*/
 			query(newQuery){
 				if(!newQuery) return
 				this.search(newQuery)
@@ -80,17 +90,22 @@
 			上拉加载,当滚动到一定的位置加载更多数据,定义一个flag 是否有更多的数据可以获取，默认为true,当所有的数据都获取完毕设为false
 			定义一个函数 判断 当前数据是否获取完毕。
 			*/
-		   ...mapMutations({
+		    ...mapMutations({
 			   setSinger:'SET_SINGER'
-		   }),
-		   refresh(){
+		    }),
+		    ...mapActions(['insertSong']),
+		    refresh(){
 			   this.$refs.suggest.refresh()
-		   },
+		    },
+			handlePlaySearchSong(song){
+				this.insertSong(song);
+			},
 			search(){
 				if(!this.query) return;
 				this.page = 1;
 				this.hasMore = true;
 				this.$refs.suggest.scrollTo(0, 0);
+				this.singerInfo = {};
 				search(this.query,this.page,this.showSinger,perpage).then(res => {
 					if(res.code === ERR_OK){
 						if(res.data.zhida && res.data.zhida.singermid){
@@ -100,6 +115,9 @@
 							this.result = this._normalizeSong(res.data.song.list);
 						}
 						this._checkMore(res.data);
+						if(res.message === 'no results'){
+							this.noResult = true;
+						}
 					}
 				})
 			},
@@ -157,8 +175,12 @@
 
 <style lang='scss' scoped>
 	.suggest-wrapper{
+		flex:1;
+		padding:10px 16px 0 16px;
+		overflow:auto;
+	}
+	.wrapper,.suggest-wrapper{
 		height:100%;
-		padding:0 16px;
 	}
 	.singer-info{
 		display:flex;
@@ -213,5 +235,9 @@
 			font-size:10px;
 			color:rgba(26,26,26,.5);
 		}
+	}
+	.no-result-wrapper{
+		height:100%;
+		width:100%;
 	}
 </style>

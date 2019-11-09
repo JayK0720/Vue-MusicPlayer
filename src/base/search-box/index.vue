@@ -25,6 +25,9 @@
 			}
 		},
 		created(){
+			/*
+			监听搜索词的变化,派发一个query事件
+			*/
 			this.$watch('query',(value)=>{
 				this.$emit('query',value);
 			})
@@ -33,6 +36,7 @@
 			handleClear(){
 				this.query = ''
 			},
+			/*将文本框内容设置为指定值,父组件会调用这个方法然后传递一个参数*/
 			setQuery(text){
 				this.query = text
 			}
@@ -42,7 +46,7 @@
 
 <style lang='scss' scoped>
 	.search-box{
-		padding:0 16px;
+		margin:0 16px;
 		display:flex;
 		height:32px;
 		border-radius:16px;
