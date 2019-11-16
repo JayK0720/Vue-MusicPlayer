@@ -99,6 +99,7 @@
 		    },
 			handlePlaySearchSong(song){
 				this.insertSong(song);
+				this.$emit('select',song)
 			},
 			search(){
 				if(!this.query) return;

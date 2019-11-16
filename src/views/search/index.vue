@@ -1,32 +1,62 @@
 <template>
 	<div class="search-wrapper">
 		<SearchBox ref='searchBox' @query='handleSearch'/>
-		<Scroll :data='hotKey' v-show='!query' class='hot-wrapper'>
-			<div class="hot-search" >
-				<h1 class="hot-title">热门搜索</h1>
-				<ul class="hot-list">
-					<li 
-						v-for='(item,index) in hotKey' 
-						:key='index' 
-						class='hot-item'
-						@click='handleAddQuery(item.title)'
-					>
-						<div 
-							class="index" :class='{active:index < 3}'
-						>{{index+1}}</div>
-						<div class="text">
-							<p class="title">
-								<span>{{item.title}}</span>
-								<span class="tag" v-if='item.source === 1'>热</span>
-							</p>
-							<p class="description">{{item.description}}</p>
-						</div>
-						<div class="score">{{item.score}}</div>
-					</li>
-				</ul>
-			</div>
+		<!-- scroll 组件监听两组数据,定义一个计算属性，将两组数据合并后再传递给scroll组件-->
+		<Scroll :data='shortcut' v-show='!query' class='scroll-wrapper'>
+			<section>
+				<div class="search-history-wrapper" v-show='searchHistory.length'>
+					<h1 class="search-title">
+						<span>搜索历史</span>
+						<span class='delete-btn' @click='handleDeleteSerchList'>
+							<i class="iconfont delete-icon">&#xe608;</i>
+						</span>
+					</h1>
+					<ul class="search-list">
+						<li 
+							class='search-item'
+							v-for="(item,index) in searchHistory"
+							:key='index'
+							@click='handleSelectSearchItem(item)'
+						>{{item}}</li>
+					</ul>
+				</div>
+				<div class="hot-wrapper" >
+					<h1 class="hot-title">热门搜索</h1>
+					<ul class="hot-list">
+						<li 
+							v-for='(item,index) in hotKey' 
+							:key='index' 
+							class='hot-item'
+							@click='handleAddQuery(item.title)'
+						>
+							<div 
+								class="index" :class='{active:index < 3}'
+							>{{index+1}}</div>
+							<div class="text">
+								<p class="title">
+									<span>{{item.title}}</span>
+									<span class="tag" v-if='item.source === 1'>热</span>
+								</p>
+								<p class="description">{{item.description}}</p>
+							</div>
+							<div class="score">{{item.score}}</div>
+						</li>
+					</ul>
+				</div>
+			</section>
 		</Scroll>
-		<Suggest :query='query' v-show='query'/>
+		<Suggest 
+			:query='query' 
+			v-show='query'
+			@select='handlePlayHistory'
+		/>
+		<Confirm 
+			:text='text' 
+			:cancelText='cancelText' 
+			:confirmText='confirmText'
+			ref='confirm'
+			@confirm='handleConfirm'
+		/>
 		<router-view></router-view>
 	</div>
 </template>
@@ -37,6 +67,9 @@
 	import Suggest from '@/components/suggest'
 	import Scroll from '@/base/scroll'
 	import {getHotKey} from '@/common/api/search'
+	import {mapActions,mapGetters} from 'vuex'
+	import {clearSearchHistory} from '@/common/js/cache'
+	import Confirm from '@/base/confirm'
 	
 	export default{
 		name:'search',
@@ -44,12 +77,35 @@
 			return {
 				hotKey:[],
 				query:'',
+				text:'是否清空所有搜索历史',
+				cancelText:'取消',
+				confirmText:'清空',
 			}
 		},
 		created(){
 			this._getHotKey()
 		},
+		computed:{
+			...mapGetters(['searchHistory']),
+			shortcut(){
+				return this.hotKey.concat(this.searchHistory)
+			}
+		},
 		methods:{
+			...mapActions(['savePlayHistory','saveSearchHistory','clearSearchHistory']),
+			handleSelectSearchItem(item){
+				this.$refs.searchBox.setQuery(item);
+			},
+			/*
+			点击清空搜索列表时，显示弹窗
+			*/
+			handleDeleteSerchList(){
+				this.$refs.confirm.show();
+			},
+			/*当点击的是确认清除的按钮,则清空,否则什么都不做*/
+			handleConfirm(){
+				this.clearSearchHistory();
+			},
 			_getHotKey(){
 				getHotKey().then(res => {
 					if(res.code === ERR_OK){
@@ -64,9 +120,16 @@
 			/*子组件派发出的事件 获取到 搜索框的关键词,然后 将获取到的文本 传递给子组件 suggest*/
 			handleSearch(query){
 				this.query = query;
+				if(query !== ''){
+					this.saveSearchHistory(query);
+				}
+			},
+			/*监听子组件点击搜索列表的歌曲*/
+			handlePlayHistory(song){
+				this.savePlayHistory(song);
 			}
 		},
-		components:{SearchBox,Suggest,Scroll}
+		components:{SearchBox,Suggest,Scroll,Confirm}
 	}
 </script>
 
@@ -79,13 +142,38 @@
 		top:78px;
 		bottom:45px;
 	}
-	.hot-wrapper{
+	.scroll-wrapper{
 		flex:1;
-	}
-	.hot-wrapper{
 		overflow:auto;
 	}
-	.hot-search{
+	.search-history-wrapper{
+		.search-title{
+			display:flex;
+			justify-content:space-between;
+			align-items:center;
+			padding:16px;
+			font-size:16px;
+			line-height:16px;
+			span:nth-child(1){
+				font-weight:bold;
+			}
+		}
+	}
+	.search-list{
+		display:flex;
+		padding:0 16px;
+		flex-wrap:wrap;
+		.search-item{
+			margin:0 8px 8px 0;
+			font-size:14px;
+			line-height:18px;
+			padding:2px 4px;
+			background-color:#fff;
+			border-radius:9px;
+			color:rgba(26,26,26,1);
+		}
+	}
+	.hot-wrapper{
 		.hot-title{
 			padding:20px 0 0 16px;
 			font-size:16px;

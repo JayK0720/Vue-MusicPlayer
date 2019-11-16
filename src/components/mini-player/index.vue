@@ -44,6 +44,7 @@
 				this.setFullScreen(true);
 			},
 			handleTogglePlaying(){
+				if(!this.currentSong.songmid) return;
 				this.setPlayingState(!this.playing);
 			}
 		}

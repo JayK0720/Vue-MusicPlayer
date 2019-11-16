@@ -25,7 +25,13 @@ const mutations = {
 	},
 	SET_TOP_LIST(state,toplist){
 		state.toplist = toplist;
-	}
+	},
+	SET_SEARCH_HISTORY(state,searchHistory){
+		state.searchHistory = searchHistory;
+	},
+	SET_PLAY_HISTORY(state,playHistory){
+		state.playHistory = playHistory;
+	},
 }
 
 export default mutations;

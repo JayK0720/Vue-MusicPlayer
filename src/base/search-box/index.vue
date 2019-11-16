@@ -11,6 +11,7 @@
 </template>
 
 <script>
+	import {debounce} from '@/common/js/util'
 	export default{
 		name:'search-box',
 		data(){
@@ -28,9 +29,9 @@
 			/*
 			监听搜索词的变化,派发一个query事件
 			*/
-			this.$watch('query',(value)=>{
+			this.$watch('query',debounce((value)=>{
 				this.$emit('query',value);
-			})
+			},200))
 		},
 		methods:{
 			handleClear(){

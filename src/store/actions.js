@@ -1,6 +1,6 @@
 import {playMode} from '@/common/js/config'
 import {shuffle} from '@/common/js/util'
-
+import {savePlayHistory,saveSearchHistory,clearSearchHistory,clearPlayHistory} from '@/common/js/cache'
 /*
 1. 当播放歌曲后,切换模式为随机播放的时候,此时已经修改了playList为 打乱后的播放列表 
 2. 当点击播放列表的歌曲时,此时点击的歌曲 和 实际播放列表里的歌曲不一致,比如点击的是第二首歌,实际可能点击的歌曲在打乱后的列表里的序号为第10 个 或 20
@@ -102,6 +102,19 @@ const actions = {
 	  commit('SET_CURRENT_INDEX',currentIndex);
 	  commit('SET_PLAYING',true);
 	  commit('SET_FULL_SCREEN',true)
+   },
+   savePlayHistory({commit,state},song){
+	   commit('SET_PLAY_HISTORY',savePlayHistory(song));
+   },
+   saveSearchHistory({commit,state},song){
+	   commit('SET_SEARCH_HISTORY',saveSearchHistory(song));
+   },
+   /* 清除搜索历史,需要清空缓存里的搜索历史,并将search_history设置为空数组*/
+   clearSearchHistory({commit,state}){
+	   commit('SET_SEARCH_HISTORY',clearSearchHistory())
+   },
+   clearPlayHistory({commit,state}){
+	   commit('SET_PLAY_HISTORY',clearPlayHistory());
    }
 } 
 export default actions;

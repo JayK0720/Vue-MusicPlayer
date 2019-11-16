@@ -15,6 +15,8 @@ const getters = {
 	},
 	disc:(state) => state.disc,
 	toplist:(state) => state.toplist,
+	searchHistory:(state) => state.searchHistory,
+	playHistory:(state) => state.playHistory
 }
 
 export default getters;

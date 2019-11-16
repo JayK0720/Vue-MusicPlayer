@@ -79,7 +79,7 @@
 			this.maxTranslateY = -this.bgHeight + TITLE_HEIGHT;
 		},
 		methods:{
-			...mapActions(['selectPlay','playAllMusic']),
+			...mapActions(['selectPlay','playAllMusic','savePlayHistory']),
 			handleBack(){
 				this.$router.back()
 			},
@@ -136,6 +136,7 @@
 			*/
 			selectSong(item,index){
 				this.selectPlay({list:this.songs,index});
+				this.savePlayHistory(item);
 			},
 			handlePlayAll(){
 				this.playAllMusic({list:this.songs,index:0});
