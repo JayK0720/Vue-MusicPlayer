@@ -141,6 +141,8 @@
 		width:100%;
 		top:78px;
 		bottom:45px;
+		z-index:200;
+		background-color:#f9f9f9;
 	}
 	.scroll-wrapper{
 		flex:1;
@@ -164,10 +166,10 @@
 		padding:0 16px;
 		flex-wrap:wrap;
 		.search-item{
-			margin:0 8px 8px 0;
+			margin:0 10px 10px 0;
 			font-size:14px;
 			line-height:18px;
-			padding:2px 4px;
+			padding:4px 6px;
 			background-color:#fff;
 			border-radius:9px;
 			color:rgba(26,26,26,1);

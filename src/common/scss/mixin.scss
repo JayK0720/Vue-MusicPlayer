@@ -7,7 +7,7 @@
 
 @mixin border-bottom-1px($color){
 	position:relative;
-	&:before{
+	&:after{
 		content:'';
 		position:absolute;
 		bottom:0;

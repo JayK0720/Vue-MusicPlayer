@@ -19,7 +19,7 @@
 		name:'confirm',
 		data(){
 			return{
-				flag:false
+				flag:false,
 			}
 		},
 		props:{
@@ -57,6 +57,15 @@
 
 <style scoped lang='scss'>
 	@import '@/common/scss/mixin.scss'; 
+	.fade-enter-active,.fade-leave-active{
+		transition:opacity .25s;
+	}
+	.fade-enter,.fade-leave-to{
+		opacity:0;
+	}
+	.fade-enter-to,.fade-leave{
+		opacity:1;
+	}
 	.confirm-wrapper{
 		position:fixed;
 		left:0;

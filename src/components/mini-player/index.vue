@@ -1,5 +1,9 @@
 <template>
-	<div class="mini-player" @click.stop='handleOpenFullScreen'>
+	<div 
+		class="mini-player" 
+		@click.stop='handleOpenFullScreen'
+		:class='{active:isActive}'
+	>
 		<div class="music-icon" :class="iconClass">
 			<img v-bind:src="currentSong.image" alt="" width='45' height='45'>
 		</div>
@@ -19,21 +23,35 @@
 				<i class="iconfont">&#xe603;</i>
 			</template>
 		</div>
-		<div class="list-icon control" :class='{active:currentSong.singer}'>
+		<div 
+			class="list-icon control" 
+			:class='{active:currentSong.singer}'
+			@click.stop='handleTogglePlayList'
+		>
 			<i class="iconfont">&#xe677;</i>
 		</div>
+		<PlayList ref='playlist' @close='handleClose'/>
 	</div>
 </template>
 
 <script>
 	import {mapMutations,mapGetters} from 'vuex'
+	import PlayList from '@/components/play-list'
 	export default{
 		name:'mini-player',
+		data(){
+			return{
+				isActive:false
+			}
+		},
 		computed:{
 			...mapGetters(['currentSong','playing']),
 			iconClass(){
 				return this.playing ? 'play' : 'pause'
 			}
+		},
+		components:{
+			PlayList
 		},
 		methods:{
 			...mapMutations({
@@ -46,6 +64,14 @@
 			handleTogglePlaying(){
 				if(!this.currentSong.songmid) return;
 				this.setPlayingState(!this.playing);
+			},
+			handleTogglePlayList(){
+				if(!this.currentSong.songmid) return;
+				this.$refs.playlist.show();
+				this.isActive = true;
+			},
+			handleClose(){
+				this.isActive = false;
 			}
 		}
 	}
@@ -63,6 +89,10 @@
 		align-items:center;
 		justify-content:space-between;
 		background-color:#ffffff;
+		z-index:100;
+		&.active{
+			z-index:300;
+		}
 		.music-icon{
 			transform:translateY(-5px);
 			margin-right:10px;

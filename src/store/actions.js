@@ -103,6 +103,21 @@ const actions = {
 	  commit('SET_PLAYING',true);
 	  commit('SET_FULL_SCREEN',true)
    },
+   removeSong({commit,state},song){
+	   let sequencelist = [...state.sequenceList];
+	   let playlist = [...state.playList];
+	   let currentIndex = state.currentIndex;
+	   let pIndex = findIndex(playlist,song);
+	   playlist.splice(pIndex,1);
+	   let sIndex = findIndex(sequencelist,song);
+	   sequencelist.splice(sIndex,1);
+	   if(currentIndex > pIndex || currentIndex === playlist.length){
+		   currentIndex--;
+	   }
+	   commit('SET_PLAY_LIST',playlist);
+	   commit('SET_SEQUENCE_LIST',sequencelist);
+	   commit('SET_CURRENT_INDEX',currentIndex);
+   },
    savePlayHistory({commit,state},song){
 	   commit('SET_PLAY_HISTORY',savePlayHistory(song));
    },

@@ -16,7 +16,8 @@ const getters = {
 	disc:(state) => state.disc,
 	toplist:(state) => state.toplist,
 	searchHistory:(state) => state.searchHistory,
-	playHistory:(state) => state.playHistory
+	playHistory:(state) => state.playHistory,
+	playListLength:(state) => state.playList.length,
 }
 
 export default getters;

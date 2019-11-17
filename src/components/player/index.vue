@@ -86,7 +86,6 @@
 				</div>
 			</div>
 		</transition>
-		<!-- <Audio :url='currentSong.url' ref='audio'/> -->
 		<audio 
 			v-bind:src="currentSong.url" 
 			ref='audio'
@@ -368,7 +367,7 @@
 		},
 		watch:{
 			currentSong(newSong,oldSong){
-				if(newSong.songid === oldSong.songid) return;
+				if(newSong.songmid === oldSong.songmid) return;
 				this.$nextTick(() => {
 					this.$refs.audio.play();
 					this.getLyric();
@@ -393,7 +392,7 @@
 		bottom:0;
 		top:0;
 		right:0;
-		z-index:200;
+		z-index:500;
 		background-color:#232323;
 		color:#ffffff;
 		.player-background{

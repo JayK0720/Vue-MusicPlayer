@@ -1,4 +1,5 @@
-const MAX_HISTORY_LENGTH = 10;
+const MAX_SEARCH_LENGTH = 10;
+const MAX_PLAY_LENGTH = 100;
 const PLAY_KEY = '_play_';
 const SEARCH_KEY = '_search_';
 
@@ -12,6 +13,9 @@ export function savePlayHistory(song){
 		playHistory.splice(index,1);
 	}
 	playHistory.unshift(song);
+	if(playHistory.length > MAX_PLAY_LENGTH){
+		playHistory.pop();
+	}
 	window.localStorage.setItem(PLAY_KEY,JSON.stringify(playHistory));
 	return playHistory;
 }
@@ -44,7 +48,7 @@ export function saveSearchHistory(query){
 	let searchHistory = JSON.parse(window.localStorage.getItem(SEARCH_KEY) || '[]');
 	insertArray(searchHistory,query,(item) => {
 		return item === query
-	},MAX_HISTORY_LENGTH);
+	},MAX_SEARCH_LENGTH);
 	window.localStorage.setItem(SEARCH_KEY,JSON.stringify(searchHistory));
 	return searchHistory;
 }
