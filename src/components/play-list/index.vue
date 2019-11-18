@@ -7,7 +7,7 @@
 						<i class="iconfont mode-icon">&#xe688;</i>
 						<span class='text'>顺序播放({{this.playListLength}})</span>
 					</div>
-					<span class="delete-btn">
+					<span class="delete-btn" @click.stop='handleDeletePlayList'>
 						<i class="iconfont delete-icon">&#xe608;</i>
 					</span>
 				</h1>
@@ -18,7 +18,7 @@
 							v-for='(item,index) in sequenceList'
 							:key='index'
 							:class='getCurrentSong(item)'
-							@click='handlePlaySong(item,index)'
+							@click.stop='handlePlaySong(item,index)'
 							ref='listItem'
 						>
 							<p class='song-info'>
@@ -39,6 +39,7 @@
 					关闭
 				</div>
 			</div>
+			<Confirm ref='confirm' text='清空当前播放队列' @confirm='handleConfirm'/>
 		</div>
 	</transition>
 </template>
@@ -46,6 +47,7 @@
 <script>
 	import {mapGetters,mapActions} from 'vuex';
 	import Scroll from '@/base/scroll'
+	import Confirm from '@/base/confirm'
 	export default{
 		name:'play-list',
 		data() {
@@ -56,9 +58,9 @@
 		computed:{
 			...mapGetters(['sequenceList','currentSong','playListLength'])
 		},
-		components:{Scroll},
+		components:{Scroll,Confirm},
 		methods:{
-			...mapActions(['selectPlay','removeSong']),
+			...mapActions(['selectPlay','removeSong','clearPlayList']),
 			show(){
 				this.flag = true;
 				this.$nextTick(() => {
@@ -89,7 +91,18 @@
 				this.$refs.scroll.scrollToElement(this.$refs.listItem[index],200);
 			},
 			handleRemove(song,index){
+				if(this.playListLength === 1){
+					this.$refs.confirm.show();
+					return;
+				}
 				this.removeSong(song);
+			},
+			handleDeletePlayList(){
+				this.$refs.confirm.show();
+			},
+			handleConfirm(){
+				this.clearPlayList();
+				this.hide();
 			}
 		}
 	}

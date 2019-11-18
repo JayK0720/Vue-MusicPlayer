@@ -117,6 +117,15 @@ const actions = {
 	   commit('SET_PLAY_LIST',playlist);
 	   commit('SET_SEQUENCE_LIST',sequencelist);
 	   commit('SET_CURRENT_INDEX',currentIndex);
+	   if(!playlist.length){
+		   commit('SET_PLAYING',false);
+	   }
+   },
+   clearPlayList({commit,state}){
+		commit('SET_PLAY_LIST',[]);
+		commit('SET_SEQUENCE_LIST',[]);
+		commit('SET_CURRENT_INDEX',-1);
+		commit('SET_PLAYING',false);
    },
    savePlayHistory({commit,state},song){
 	   commit('SET_PLAY_HISTORY',savePlayHistory(song));

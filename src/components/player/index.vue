@@ -367,6 +367,7 @@
 		},
 		watch:{
 			currentSong(newSong,oldSong){
+				if(!newSong.songmid) return;
 				if(newSong.songmid === oldSong.songmid) return;
 				this.$nextTick(() => {
 					this.$refs.audio.play();
