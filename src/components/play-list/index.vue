@@ -3,9 +3,14 @@
 		<div class="play-list-wrapper" v-show='flag' @click.stop>
 			<div class="play-list">
 				<h1 class="title">
-					<div class="play-mode">
-						<i class="iconfont mode-icon">&#xe688;</i>
-						<span class='text'>顺序播放({{this.playListLength}})</span>
+					<div class="play-mode" @click='changeMode'>
+						<i v-show='this.mode === 2' class="iconfont mode-icon">&#xe612;</i>
+						<i v-show='this.mode === 0' class="iconfont mode-icon">&#xe674;</i>
+						<i v-show='this.mode === 1' class="iconfont mode-icon">&#xe622;</i>
+						<p class="mode-text">
+							<span>{{modeText}}</span>
+							<span v-show='this.mode!==1'> ({{this.playListLength}}首)</span>
+						</p>
 					</div>
 					<span class="delete-btn" @click.stop='handleDeletePlayList'>
 						<i class="iconfont delete-icon">&#xe608;</i>
@@ -45,9 +50,11 @@
 </template>
 
 <script>
-	import {mapGetters,mapActions} from 'vuex';
+	import {mapGetters,mapActions,mapMutations} from 'vuex';
 	import Scroll from '@/base/scroll'
 	import Confirm from '@/base/confirm'
+	import {playMode} from '@/common/js/config'
+	import {shuffle} from '@/common/js/util'
 	export default{
 		name:'play-list',
 		data() {
@@ -56,11 +63,43 @@
 			}
 		},
 		computed:{
-			...mapGetters(['sequenceList','currentSong','playListLength'])
+			...mapGetters(['sequenceList','currentSong','playListLength','mode','playList']),
+			modeText(){
+				if(this.mode === playMode.sequence){
+					return '顺序播放'
+				}else if(this.mode == playMode.random){
+					return '随机播放'
+				}else{
+					return '单曲循环'
+				}
+			}
 		},
 		components:{Scroll,Confirm},
 		methods:{
 			...mapActions(['selectPlay','removeSong','clearPlayList']),
+			...mapMutations({
+				setPlayMode:'SET_MODE',
+				setPlayList:'SET_PLAY_LIST',
+				setCurrentIndex:'SET_CURRENT_INDEX'
+			}),
+			changeMode(){
+				let mode = (this.mode+1) % 3;	// 点击切换播放模式
+				this.setPlayMode(mode);
+				let list = [];
+				if(mode === playMode.random){
+					list = shuffle(this.playList);
+				}else{
+					list = this.sequenceList;
+				}
+				this.resertIndex(list);
+				this.setPlayList(list)
+			},
+			resertIndex(arr){
+				const index = arr.findIndex((item) => {
+					return this.currentSong.songmid === item.songmid
+				})
+				this.setCurrentIndex(index);
+			},
 			show(){
 				this.flag = true;
 				this.$nextTick(() => {
@@ -147,6 +186,9 @@
 			font-size:16px;
 			font-weight:bold;
 			@include border-bottom-1px(#383e41);
+		}
+		.mode-text{
+			display:inline-block;
 		}
 		.mode-icon,.delete-icon{
 			color:#7f8083;
