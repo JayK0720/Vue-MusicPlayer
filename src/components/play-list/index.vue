@@ -34,7 +34,7 @@
 								<i class="iconfont">&#xe607;</i>
 							</span>
 						</li>
-						<li class='add-song'>
+						<li class='add-song' @click.stop='handleAddSong'>
 							<i class="iconfont add-icon">&#xe66b;</i>
 							<span>添加歌曲到播放队列</span>
 						</li>
@@ -45,6 +45,7 @@
 				</div>
 			</div>
 			<Confirm ref='confirm' text='清空当前播放队列' @confirm='handleConfirm'/>
+			<AddSong ref='addSong'/>
 		</div>
 	</transition>
 </template>
@@ -55,6 +56,7 @@
 	import Confirm from '@/base/confirm'
 	import {playMode} from '@/common/js/config'
 	import {shuffle} from '@/common/js/util'
+	import AddSong from '@/components/add-song'
 	export default{
 		name:'play-list',
 		data() {
@@ -74,7 +76,7 @@
 				}
 			}
 		},
-		components:{Scroll,Confirm},
+		components:{Scroll,Confirm,AddSong},
 		methods:{
 			...mapActions(['selectPlay','removeSong','clearPlayList']),
 			...mapMutations({
@@ -82,6 +84,9 @@
 				setPlayList:'SET_PLAY_LIST',
 				setCurrentIndex:'SET_CURRENT_INDEX'
 			}),
+			handleAddSong(){
+				this.$refs.addSong.show();
+			},
 			changeMode(){
 				let mode = (this.mode+1) % 3;	// 点击切换播放模式
 				this.setPlayMode(mode);
