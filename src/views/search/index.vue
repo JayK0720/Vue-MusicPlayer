@@ -70,7 +70,7 @@
 	import {mapActions,mapGetters} from 'vuex'
 	import {clearSearchHistory} from '@/common/js/cache'
 	import Confirm from '@/base/confirm'
-	
+
 	export default{
 		name:'search',
 		data() {

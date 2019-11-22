@@ -27,7 +27,7 @@
 		},
 		created(){
 			/*
-			监听搜索词的变化,派发一个query事件
+			监听搜索词的变化,派发一个query事件,将v-model绑定的文本框 数据通过事件传递出来
 			*/
 			this.$watch('query',debounce((value)=>{
 				this.$emit('query',value);

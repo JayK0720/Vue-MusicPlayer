@@ -129,9 +129,6 @@
 				this.page++
 				search(this.query,this.page,this.showSinger,perpage).then(res => {
 					if(res.code === ERR_OK){
-						/*const songs = this._normalizeSong(res.data.song.list);
-						this.result.push(...songs); */
-						
 						const songs = this._normalizeSong(res.data.song.list);
 						this.result = this.result.concat(songs);
 					}
