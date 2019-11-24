@@ -11,16 +11,42 @@
 			<SearchBox :placeholder="placeholder" @query="handleSearch"/>
 			<Suggest :query="query" :showSinger="false" v-show="query"/>
 			<div class="history-wrapper" v-show="!query">
-				<div class="tab-wrapper">
-					<div class="tab-item" :class="{active:isActive}">最近播放</div>
-					<div class="tab-item" :class="{active:!isActive}">搜索历史</div>
-				</div>
-				<div class="playlist">
-					<ul>
-						<li></li>
+				<Switches
+					:switches="switches"
+					:currentIndex="currentIndex"
+					@switch="switchItem"
+				/>
+				<Scroll
+					v-if="currentIndex === 0" :data="playHistory"
+					class="play-history-wrapper"
+				>
+					<div class="play-history-list">
+						<SongList
+							@selectItem="selectSong"
+							:songs="playHistory"
+						/>
+					</div>
+				</Scroll>
+				<Scroll
+					v-if="currentIndex === 1"
+					:data="searchHistory"
+					class="search-history-wrapper"
+				>
+					<ul class="search-history-list">
+						<li
+							v-for="(item,index) in searchHistory"
+							class="search-item"
+							:key="index"
+							@click="handleDeleteSearchItem(index)"
+						>
+							<span>{{item}}</span>
+							<i class="iconfont delete-icon">&#xe607;</i>
+						</li>
 					</ul>
-				</div>
+				</Scroll>
 			</div>
+			<Tip :delay="1500" :text="text" ref="tip"/>
+			<Confirm ref="confirm" text="是否清空搜索历史" @confirm="handleConfirm"/>
 		</div>
 	</transition>
 </template>
@@ -28,6 +54,12 @@
 <script>
 	import SearchBox from '@/base/search-box';
 	import Suggest from '@/components/suggest'
+	import Switches from '@/base/switches'
+	import Scroll from '@/base/scroll'
+	import SongList from '@/base/song-list'
+	import {mapActions,mapGetters,mapMutations} from 'vuex'
+	import Tip from '@/base/tip'
+	import Confirm from '@/base/confirm'
 	export default{
 		name:'add-song',
 		data(){
@@ -35,11 +67,31 @@
 				flag:false,
 				placeholder:'搜索歌曲',
 				query:'',
-				isActive:true,
+				switches:[
+					{name:'最近播放'},
+					{name:'搜索历史'}
+				],
+				currentIndex:0,
+				text:'一首已添加到播放队列'
 			}
 		},
-		components:{SearchBox,Suggest},
+		components:{
+			SearchBox,
+			Suggest,
+			Switches,
+			SongList,
+			Scroll,
+			Tip,
+			Confirm
+		},
+		computed:{
+			...mapGetters(['playHistory','searchHistory'])
+		},
 		methods:{
+			...mapActions(['insertSong','clearSearchHistory']),
+			...mapMutations({
+				deleteSearchHistory:'DELETE_SEARCH_HISTORY'
+			}),
 			show(){
 				this.flag = true;
 			},
@@ -51,6 +103,22 @@
 			},
 			handleSearch(query){
 				this.query = query;
+			},
+			switchItem(index){
+				this.currentIndex = index;
+			},
+			selectSong(song,index){
+				console.log(song,index);
+			},
+			handleDeleteSearchItem(index){
+				if(this.searchHistory.length === 1){
+					this.$refs.confirm.show();
+					return;
+				}
+				this.deleteSearchHistory(index);
+			},
+			handleConfirm(){
+				this.clearSearchHistory();
 			}
 		}
 	}
@@ -90,35 +158,38 @@
 		}
 	}
 	.history-wrapper{
+		padding:0 16px;
 		display:flex;
+		flex-direction:column;
 		flex:1;
-		width:100%;
+		min-height:0;
 		background-color:#f6f6f6;
-		.tab-wrapper{
-			margin-top:20px;
-			display:flex;
-			justify-content:center;
-			width:100%;
-			height:30px;
-			border-radius:8px;
+		.play-history-wrapper,.search-history-wrapper{
+			height:100%;
+			overflow:auto;
 		}
-		.tab-item{
-			width:90px;
-			height:30px;
-			font-size:14px;
-			line-height:30px;
-			text-align:center;
-			color:#212121;
-			background-color:#fff;
-			&:first-child{
-				border-radius:5px 0 0 5px;
+		.search-history-wrapper{
+			.search-item{
+				display:flex;
+				justify-content:space-between;
+				color:#212121;
+				font-size:14px;
+				height:36px;
+				line-height:36px;
 			}
-			&:last-child{
-				border-radius:0 5px 5px 0;
+			.text{
+				flex:1;
+				min-width:0;
+				width:100%;
+				white-space:nowrap;
+				text-overflow:ellipsis;
+				overflow:hidden;
 			}
-			&.active{
-				background-color:#00ffb8;
-				color:#fff;
+			.delete-icon{
+				flex:0 0 20px;
+				font-size:14px;
+				text-align:center;
+				color:#b5b0b9;
 			}
 		}
 	}

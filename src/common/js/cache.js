@@ -1,5 +1,5 @@
 const MAX_SEARCH_LENGTH = 10;
-const MAX_PLAY_LENGTH = 100;
+const MAX_PLAY_LENGTH = 200;
 const PLAY_KEY = '_play_';
 const SEARCH_KEY = '_search_';
 
@@ -52,6 +52,13 @@ export function saveSearchHistory(query){
 	window.localStorage.setItem(SEARCH_KEY,JSON.stringify(searchHistory));
 	return searchHistory;
 }
+
+export function deleteSearchHistory(index){
+	let searchHistory = JSON.parse(window.localStorage.getItem(SEARCH_KEY) || '[]');
+	searchHistory.splice(index,1);
+	window.localStorage.setItem(SEARCH_KEY,JSON.stringify(searchHistory));
+}
+
 
 export function loadSearchHistory(){
 	let searchHistory = JSON.parse(window.localStorage.getItem(SEARCH_KEY) || '[]');

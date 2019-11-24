@@ -45,7 +45,7 @@
 			},
 			handleCancel(){
 				this.hide();
-				this.$emit('cancal');
+				this.$emit('cancel');
 			},
 			handleConfirm(){
 				this.hide();

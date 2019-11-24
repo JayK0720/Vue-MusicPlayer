@@ -1,3 +1,4 @@
+import {deleteSearchHistory} from '@/common/js/cache.js';
 const mutations = {
 	SET_SINGER(state,singer){
 		state.singer = singer
@@ -32,6 +33,10 @@ const mutations = {
 	SET_PLAY_HISTORY(state,playHistory){
 		state.playHistory = playHistory;
 	},
+	DELETE_SEARCH_HISTORY(state,index){
+		state.searchHistory.splice(index,1);
+		deleteSearchHistory(index);
+	}
 }
 
 export default mutations;
