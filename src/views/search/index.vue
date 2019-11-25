@@ -49,6 +49,7 @@
 			:query='query' 
 			v-show='query'
 			@select='handlePlayHistory'
+			:addSong="false"
 		/>
 		<Confirm 
 			:text='text' 
@@ -126,6 +127,7 @@
 			},
 			/*监听子组件点击搜索列表的歌曲*/
 			handlePlayHistory(song){
+				console.log(song);
 				this.savePlayHistory(song);
 			}
 		},

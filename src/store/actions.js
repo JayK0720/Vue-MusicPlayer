@@ -87,7 +87,6 @@ const actions = {
 	  let currentSIndex = findIndex(sequenceList,currentSong) + 1;
 	  // 点击的歌曲是否已经存在于sequenceList
 	  let fdSIndex = findIndex(sequenceList,song);
-	  
 	  sequenceList.splice(currentSIndex,0,song);
 	  
 	  if(fdSIndex > -1){
@@ -139,6 +138,14 @@ const actions = {
    },
    clearPlayHistory({commit,state}){
 	   commit('SET_PLAY_HISTORY',clearPlayHistory());
+   },
+   addSong({commit,state},song){
+   		let playlist = [...state.playList];
+   		let sequencelist = [...state.sequenceList];
+   		playlist.push(song);
+   		sequencelist.push(song);
+   		commit('SET_PLAY_LIST',playlist);
+   		commit('SET_SEQUENCE_LIST',sequencelist);
    }
 } 
 export default actions;

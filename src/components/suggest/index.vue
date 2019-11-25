@@ -76,6 +76,10 @@
 			showSinger:{
 				type:Boolean,
 				default:true
+			},
+			addSong:{
+				type:Boolean,
+				default:false
 			}
 		},
 		watch:{
@@ -93,13 +97,21 @@
 		    ...mapMutations({
 			   setSinger:'SET_SINGER'
 		    }),
-		    ...mapActions(['insertSong']),
+		    ...mapActions(['insertSong','savePlayHistory']),
 		    refresh(){
 			   this.$refs.suggest.refresh()
 		    },
+		    /*
+		    * 点击搜索列表的歌曲时,先播放歌曲,将点击播放的歌曲添加进当前播放列表,然后将播放的歌曲保存到本地缓存中
+		    * */
 			handlePlaySearchSong(song){
-				this.insertSong(song);
-				this.$emit('select',song)
+				console.log(song);
+				if(!this.addSong){
+					this.$emit('select',song)
+					this.insertSong(song);
+				}else{
+					this.$emit('addSong',song)
+				}
 			},
 			search(){
 				if(!this.query) return;

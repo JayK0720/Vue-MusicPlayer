@@ -9,7 +9,12 @@
 				>关闭</p>
 			</div>
 			<SearchBox :placeholder="placeholder" @query="handleSearch"/>
-			<Suggest :query="query" :showSinger="false" v-show="query"/>
+			<Suggest
+				:query="query"
+				:showSinger="false" v-show="query"
+				:addSong="true"
+				@addSong="handleAddSong"
+			/>
 			<div class="history-wrapper" v-show="!query">
 				<Switches
 					:switches="switches"
@@ -19,6 +24,7 @@
 				<Scroll
 					v-if="currentIndex === 0" :data="playHistory"
 					class="play-history-wrapper"
+					ref="playList"
 				>
 					<div class="play-history-list">
 						<SongList
@@ -31,6 +37,7 @@
 					v-if="currentIndex === 1"
 					:data="searchHistory"
 					class="search-history-wrapper"
+					ref="searchList"
 				>
 					<ul class="search-history-list">
 						<li
@@ -60,6 +67,7 @@
 	import {mapActions,mapGetters,mapMutations} from 'vuex'
 	import Tip from '@/base/tip'
 	import Confirm from '@/base/confirm'
+	import {createSong} from '@/common/js/song'
 	export default{
 		name:'add-song',
 		data(){
@@ -88,12 +96,19 @@
 			...mapGetters(['playHistory','searchHistory'])
 		},
 		methods:{
-			...mapActions(['insertSong','clearSearchHistory']),
+			...mapActions(['insertSong','clearSearchHistory','addSong']),
 			...mapMutations({
 				deleteSearchHistory:'DELETE_SEARCH_HISTORY'
 			}),
 			show(){
 				this.flag = true;
+				setTimeout(() => {
+					if(this.currentIndex === 0){
+						this.$refs.playList.refresh();
+					}else{
+						this.$refs.searchList.refresh();
+					}
+				},20);
 			},
 			hide(){
 				this.flag = false;
@@ -108,7 +123,9 @@
 				this.currentIndex = index;
 			},
 			selectSong(song,index){
-				console.log(song,index);
+				if(index !== 0){
+					this.insertSong(song);
+				}
 			},
 			handleDeleteSearchItem(index){
 				if(this.searchHistory.length === 1){
@@ -119,6 +136,12 @@
 			},
 			handleConfirm(){
 				this.clearSearchHistory();
+			},
+			handleAddSong(song){
+				this.addSong(song);
+				this.$nextTick(() => {
+					this.$refs.tip.show();
+				})
 			}
 		}
 	}

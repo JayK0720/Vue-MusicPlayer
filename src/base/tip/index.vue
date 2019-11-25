@@ -28,7 +28,7 @@
         methods:{
             show(){
                 this.flag = true;
-                this.clearTimeout(this.timer);
+                clearTimeout(this.timer);
                 this.timer = setTimeout(() =>{
                     this.hide();
                 },this.delay);
@@ -49,17 +49,25 @@
     right:0;
     z-index:200;
     .tip-content{
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
         position:absolute;
         left:50%;
         top:50%;
         transform:translate(-50%,-50%);
-        width:80%;
-        height:50px;
+        width:70%;
+        height:80px;
         background-color:#fff;
         text-align:center;
-        line-height:50px;
+    }
+    .text{
+        line-height:30px;
+        font-size:14px;
+        color:#212121;
     }
     .success-icon{
+        font-size:20px;
         color:#00c772;
     }
 }
