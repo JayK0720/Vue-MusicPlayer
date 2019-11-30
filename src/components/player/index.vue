@@ -79,7 +79,11 @@
 						<div class="next" @click='handleNext'>
 							<i class="iconfont">&#xe619;</i>
 						</div>
-						<div class="collect">
+						<div
+							class="collect"
+							@click.stop="handleToggleFavoriteSong(currentSong)"
+							:class="favoriteIcon(currentSong)"
+						>
 							<i class="iconfont">&#xe61a;</i>
 						</div>
 					</div>
@@ -94,11 +98,19 @@
 			@timeupdate='timeupdate'
 			@ended='end'
 		></audio>
+		<Tip text="歌曲已添加至收藏列表" ref="tip"/>
+		<Confirm
+			text="确定从我喜欢中删除这首歌?"
+			confirmText="确定删除"
+			cancelText="取消"
+			ref="confirm"
+			@confirm="handleDeleteFavoriteSong"
+		/>
 	</div>
 </template>
 
 <script>
-	import {mapGetters,mapMutations} from 'vuex'
+	import {mapGetters,mapMutations,mapActions} from 'vuex'
 	import ProgressBar from '@/base/progress-bar'
 	import {playMode} from '@/common/js/config'
 	import {shuffle} from '@/common/js/util.js'
@@ -108,6 +120,8 @@
 	import Loading from '@/base/loading'
 	let transform = prefixStyle('transform')
 	let transitionDuration = prefixStyle('transitionDuration');
+	import Tip from '@/base/tip'
+	import Confirm from '@/base/confirm'
 	const TIME = 250;
 	const HEIGHT = 32;
 	export default{
@@ -118,10 +132,10 @@
 				currentTime:0,
 				currentLyric:null,
 				currentPage:'cd',
-				number:-1
+				number:-1,
 			}
 		},
-		components:{ProgressBar,Scroll,Loading},
+		components:{ProgressBar,Scroll,Loading,Tip,Confirm},
 		computed:{
 			...mapGetters([
 					'fullScreen',
@@ -130,7 +144,8 @@
 					'playing',
 					'currentIndex',
 					'mode',
-					'sequenceList'
+					'sequenceList',
+					'favoriteList'
 				]),
 			cdClass(){
 				return this.playing? 'play' : 'pause'
@@ -150,6 +165,7 @@
 				setPlayMode:'SET_MODE',
 				setPlayList:'SET_PLAY_LIST'
 			}),
+			...mapActions(['saveFavoriteList','deleteFavoriteList']),
 			handleFold(){
 				this.foldFullScreen(false);
 			},
@@ -363,6 +379,33 @@
 			   this.$refs.lyric.style[transform] = `translate3d(${offsetWidth}px,0,0)`;
 			   this.$refs.lyric.style[transitionDuration] = `${TIME}ms`;
 			   this.$refs.left.style['opacity'] = opacity;
+			},
+			handleToggleFavoriteSong(song){
+				if(this.isFavorite(song)){
+					this.$refs.confirm.show();
+				}else{
+					if(this.favoriteList.length === 0){
+						this.$refs.tip.show();
+					}
+					this.saveFavoriteList(song);
+				}
+			},
+			handleDeleteFavoriteSong(){
+				this.deleteFavoriteList(this.currentSong);
+			},
+			favoriteIcon(song){
+				if( this.isFavorite(song) ){
+					return 'favorite-icon'
+				}else{
+					return ''
+				}
+			},
+			// 判断当前歌曲是否在收藏列表里面
+			isFavorite(song){
+				let index = this.favoriteList.findIndex(item => {
+					return item.songmid === song.songmid;
+				})
+				return index > -1;
 			}
 		},
 		watch:{
@@ -584,6 +627,11 @@
 				.mode,.collect{
 					.iconfont{
 						font-size:24px;
+					}
+				}
+				.collect.favorite-icon{
+					.iconfont{
+						color:#00c66f;
 					}
 				}
 				.play{

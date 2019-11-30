@@ -1,12 +1,13 @@
 <template>
   <div id="app">
-	<Header/>
+	<Header @user="handleToUser"/>
 	<Tab/>
 	<keep-alive>
-		<router-view></router-view>
+		<router-view/>
 	</keep-alive>
 	<MiniPlayer/>
 	<Player/>
+	<UserCenter ref="user"/>
   </div>
 </template>
 
@@ -15,6 +16,7 @@
 	import Tab from '@/components/tab'
 	import Player from '@/components/player'
 	import MiniPlayer from '@/components/mini-player'
+	import UserCenter from '@/components/user-center'
 	export default{
 		name:'app',
 		data() {
@@ -22,7 +24,12 @@
 				
 			}
 		},
-		components:{Tab,Header,Player,MiniPlayer}
+		components:{Tab,Header,Player,MiniPlayer,UserCenter},
+		methods:{
+			handleToUser(){
+				this.$refs.user.show();
+			}
+		}
 	}
 </script>
 

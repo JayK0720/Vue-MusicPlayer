@@ -93,7 +93,7 @@
 			}
 		},
 		methods:{
-			...mapActions(['savePlayHistory','saveSearchHistory','clearSearchHistory']),
+			...mapActions(['savePlayHistory','saveSearchHistory','clearSearchHistory','insertSong']),
 			handleSelectSearchItem(item){
 				this.$refs.searchBox.setQuery(item);
 			},
@@ -125,9 +125,9 @@
 					this.saveSearchHistory(query);
 				}
 			},
-			/*监听子组件点击搜索列表的歌曲*/
+			/*监听子组件点击搜索列表的歌曲，点击播放时将播放歌曲保存至本地*/
 			handlePlayHistory(song){
-				console.log(song);
+				this.insertSong(song);
 				this.savePlayHistory(song);
 			}
 		},

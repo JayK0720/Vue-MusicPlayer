@@ -36,6 +36,9 @@ const mutations = {
 	DELETE_SEARCH_HISTORY(state,index){
 		state.searchHistory.splice(index,1);
 		deleteSearchHistory(index);
+	},
+	SET_FAVORITE_LIST(state,list){
+		state.favoriteList = list;
 	}
 }
 

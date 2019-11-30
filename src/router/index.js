@@ -8,7 +8,7 @@ export default new VueRouter({
 	routes:[
 		{
 			path:'/recommend',
-			component:() => import ('@/views/recommend'),
+			component:() => import('@/views/recommend'),
 			children:[
 				{
 					path:'disc/:id',

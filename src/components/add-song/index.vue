@@ -15,36 +15,35 @@
 				:addSong="true"
 				@addSong="handleAddSong"
 			/>
+			<Switches
+				:switches="switches"
+				:currentIndex="currentIndex"
+				@switch="switchItem"
+			/>
 			<div class="history-wrapper" v-show="!query">
-				<Switches
-					:switches="switches"
-					:currentIndex="currentIndex"
-					@switch="switchItem"
-				/>
 				<Scroll
-					v-if="currentIndex === 0" :data="playHistory"
-					class="play-history-wrapper"
+					:data="playHistory"
 					ref="playList"
+					class="play-history-wrapper"
+					v-show="currentIndex === 0"
 				>
-					<div class="play-history-list">
-						<SongList
-							@selectItem="selectSong"
-							:songs="playHistory"
-						/>
-					</div>
+					<SongList
+						@selectItem="selectSong"
+						:songs="playHistory"
+					/>
 				</Scroll>
 				<Scroll
-					v-if="currentIndex === 1"
 					:data="searchHistory"
-					class="search-history-wrapper"
 					ref="searchList"
+					class="search-history-wrapper"
+					v-show="currentIndex === 1"
 				>
 					<ul class="search-history-list">
 						<li
 							v-for="(item,index) in searchHistory"
 							class="search-item"
 							:key="index"
-							@click="handleDeleteSearchItem(index)"
+							@click.stop="handleDeleteSearchItem(index)"
 						>
 							<span>{{item}}</span>
 							<i class="iconfont delete-icon">&#xe607;</i>
@@ -67,7 +66,7 @@
 	import {mapActions,mapGetters,mapMutations} from 'vuex'
 	import Tip from '@/base/tip'
 	import Confirm from '@/base/confirm'
-	import {createSong} from '@/common/js/song'
+	import {Song} from '@/common/js/song.js'
 	export default{
 		name:'add-song',
 		data(){
@@ -96,19 +95,12 @@
 			...mapGetters(['playHistory','searchHistory'])
 		},
 		methods:{
-			...mapActions(['insertSong','clearSearchHistory','addSong']),
+			...mapActions(['insertSong','clearSearchHistory','addSong','savePlayHistory']),
 			...mapMutations({
 				deleteSearchHistory:'DELETE_SEARCH_HISTORY'
 			}),
 			show(){
 				this.flag = true;
-				setTimeout(() => {
-					if(this.currentIndex === 0){
-						this.$refs.playList.refresh();
-					}else{
-						this.$refs.searchList.refresh();
-					}
-				},20);
 			},
 			hide(){
 				this.flag = false;
@@ -123,9 +115,9 @@
 				this.currentIndex = index;
 			},
 			selectSong(song,index){
-				if(index !== 0){
-					this.insertSong(song);
-				}
+				console.log(song,index);
+				this.insertSong(new Song(song));
+				this.savePlayHistory(song);
 			},
 			handleDeleteSearchItem(index){
 				if(this.searchHistory.length === 1){
@@ -137,6 +129,7 @@
 			handleConfirm(){
 				this.clearSearchHistory();
 			},
+			/*监听suggest组件派发出的addSong 事件, 当点击歌曲时,将歌曲添加进当前的播放列表*/
 			handleAddSong(song){
 				this.addSong(song);
 				this.$nextTick(() => {
@@ -156,7 +149,7 @@
 		left:0;
 		top:0;
 		bottom:0;
-		background-color:#f1f1f1;
+		background-color:#f6f6f6;
 	}
 	.slide-enter-active,.slide-leave-active{
 		transition:all .3s;
@@ -183,11 +176,11 @@
 	.history-wrapper{
 		padding:0 16px;
 		display:flex;
-		flex-direction:column;
 		flex:1;
 		min-height:0;
 		background-color:#f6f6f6;
 		.play-history-wrapper,.search-history-wrapper{
+			width:100%;
 			height:100%;
 			overflow:auto;
 		}

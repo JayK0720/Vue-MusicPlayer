@@ -47,7 +47,7 @@
     bottom:0;
     left:0;
     right:0;
-    z-index:200;
+    z-index:1000;
     .tip-content{
         display:flex;
         flex-direction:column;

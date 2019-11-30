@@ -1,7 +1,7 @@
 import {getLyric} from '@/common/api/lyric'
 import {ERR_OK} from '@/common/api/config'
 import {Base64} from 'js-base64';
-class Song {
+export class Song {
 	constructor({songid,songmid,singer,songname,albumname,duration,url,image}){
 		this.songid = songid;
 		this.songmid = songmid;

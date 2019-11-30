@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {loadPlayHistory,loadSearchHistory} from '@/common/js/cache'
+import {loadPlayHistory,loadSearchHistory,loadFavoriteList} from '@/common/js/cache'
 Vue.use(Vuex);
 
 import mutations from './mutations'
@@ -21,6 +21,7 @@ export default new Vuex.Store({
 		toplist:{},
 		searchHistory:loadSearchHistory(),
 		playHistory:loadPlayHistory(),
+		favoriteList:loadFavoriteList()
 	},
 	mutations,
 	getters,

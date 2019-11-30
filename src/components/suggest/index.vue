@@ -97,7 +97,6 @@
 		    ...mapMutations({
 			   setSinger:'SET_SINGER'
 		    }),
-		    ...mapActions(['insertSong','savePlayHistory']),
 		    refresh(){
 			   this.$refs.suggest.refresh()
 		    },
@@ -105,11 +104,11 @@
 		    * 点击搜索列表的歌曲时,先播放歌曲,将点击播放的歌曲添加进当前播放列表,然后将播放的歌曲保存到本地缓存中
 		    * */
 			handlePlaySearchSong(song){
-				console.log(song);
+			// 如果不是添加歌曲,则派发一个事件,并播放当前歌曲,将歌曲添加到当前播放列表
 				if(!this.addSong){
 					this.$emit('select',song)
-					this.insertSong(song);
 				}else{
+				// 否则 此组件是在 添加歌曲至播放列表使用
 					this.$emit('addSong',song)
 				}
 			},

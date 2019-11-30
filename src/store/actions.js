@@ -1,6 +1,14 @@
 import {playMode} from '@/common/js/config'
 import {shuffle} from '@/common/js/util'
-import {savePlayHistory,saveSearchHistory,clearSearchHistory,clearPlayHistory} from '@/common/js/cache'
+import {
+	savePlayHistory,
+	saveSearchHistory,
+	clearSearchHistory,
+	clearPlayHistory,
+	saveFavoriteList,
+	deleteFavoriteList
+	}
+from '@/common/js/cache'
 /*
 1. 当播放歌曲后,切换模式为随机播放的时候,此时已经修改了playList为 打乱后的播放列表 
 2. 当点击播放列表的歌曲时,此时点击的歌曲 和 实际播放列表里的歌曲不一致,比如点击的是第二首歌,实际可能点击的歌曲在打乱后的列表里的序号为第10 个 或 20
@@ -146,6 +154,12 @@ const actions = {
    		sequencelist.push(song);
    		commit('SET_PLAY_LIST',playlist);
    		commit('SET_SEQUENCE_LIST',sequencelist);
+   },
+   saveFavoriteList({commit},song){
+		commit('SET_FAVORITE_LIST',saveFavoriteList(song))
+   },
+   deleteFavoriteList({commit},song){
+   		commit('SET_FAVORITE_LIST',deleteFavoriteList(song))
    }
 } 
 export default actions;

@@ -18,6 +18,7 @@ const getters = {
 	searchHistory:(state) => state.searchHistory,
 	playHistory:(state) => state.playHistory,
 	playListLength:(state) => state.playList.length,
+	favoriteList:(state) => state.favoriteList
 }
 
 export default getters;

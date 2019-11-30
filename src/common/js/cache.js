@@ -1,11 +1,13 @@
 const MAX_SEARCH_LENGTH = 10;
 const MAX_PLAY_LENGTH = 200;
+const MAX_FAVORITE_LENGTH = 100;
 const PLAY_KEY = '_play_';
 const SEARCH_KEY = '_search_';
+const FAVORITE_KEY = '_favorite_';
 
 export function savePlayHistory(song){
 	let playHistory = JSON.parse(window.localStorage.getItem(PLAY_KEY) || "[]");
-	var index = playHistory.findIndex((item) => {
+	let index = playHistory.findIndex((item) => {
 		return item.songmid === song.songmid;
 	});
 	if(index === 0) return;
@@ -68,4 +70,36 @@ export function loadSearchHistory(){
 export function clearSearchHistory(){
 	window.localStorage.removeItem(SEARCH_KEY);
 	return [];
+}
+
+export function saveFavoriteList(song){
+	let favoriteList = JSON.parse(window.localStorage.getItem(FAVORITE_KEY) || '[]')
+	let index = favoriteList.findIndex(item => {
+		return item.songmid === song.songmid;
+	});
+	if(index === 0) return;
+	if(index > 1){
+		favoriteList.splice(index,1);
+	}
+	favoriteList.unshift(song);
+	if(MAX_FAVORITE_LENGTH && favoriteList.length > MAX_FAVORITE_LENGTH ){
+		favoriteList.pop();
+	}
+	window.localStorage.setItem(FAVORITE_KEY,JSON.stringify(favoriteList));
+	return favoriteList;
+}
+
+export function deleteFavoriteList(song){
+	let favoriteList = JSON.parse(window.localStorage.getItem(FAVORITE_KEY) || '[]')
+	let index = favoriteList.findIndex(item => {
+		return item.songmid === song.songmid;
+	});
+	favoriteList.splice(index,1);
+	window.localStorage.setItem(FAVORITE_KEY,JSON.stringify(favoriteList));
+	return favoriteList;
+}
+
+export function loadFavoriteList(){
+	let favoriteList = JSON.parse(window.localStorage.getItem(FAVORITE_KEY) || '[]')
+	return favoriteList;
 }
